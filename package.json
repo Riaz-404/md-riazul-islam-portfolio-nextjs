@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:init": "node scripts/init-db.js"
+    "db:init": "node scripts/init-db.mjs",
+    "db:init-api": "curl -X POST http://localhost:5000/api/init-db"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",

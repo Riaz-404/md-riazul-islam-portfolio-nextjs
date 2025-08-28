@@ -12,7 +12,7 @@ import { ThemeToggle } from "@/components/shared/theme-toggle";
 const navigationLinks = [
   { href: "#home", label: "Home" },
   { href: "#about", label: "About" },
-  { href: "#skillbar", label: "Expertise" },
+  { href: "#expertise", label: "Expertise" },
   { href: "#projects", label: "Projects" },
   { href: "#contact", label: "Contact" },
 ];

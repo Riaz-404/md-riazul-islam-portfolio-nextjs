@@ -1,15 +1,23 @@
 #!/usr/bin/env node
 
 /**
- * Database initialization script
- * This script will initialize the MongoDB database with default data
- *
- * Usage: node scripts/init-db.js
+ * Simple database initialization script using plain JavaScript
+ * This approach doesn't require additional dependencies like tsx or ts-node
  */
 
-import { mongoDBConnection } from "../src/databases/db-connection.js";
+import { config } from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
-// Default about data
+// Load environment variables
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+config({ path: join(__dirname, "../.env") });
+
+import { mongoDBConnection } from "../src/databases/db-connection.js";
+import mongoose from "mongoose";
+
+// Default data
 const defaultAboutData = {
   id: "default-about",
   myself: {
@@ -74,7 +82,6 @@ const defaultAboutData = {
   },
 };
 
-// Default expertise data
 const defaultExpertiseData = {
   id: "default-expertise",
   title: "Expertise",
@@ -155,131 +162,113 @@ const defaultExpertiseData = {
   ],
 };
 
-async function initializeAboutData() {
+async function createSchemas() {
+  // About Schema
+  const SkillItemSchema = new mongoose.Schema(
+    {
+      id: { type: String, required: true },
+      name: { type: String, required: true },
+      description: { type: String, required: true },
+    },
+    { _id: false }
+  );
+
+  const SkillCategorySchema = new mongoose.Schema(
+    {
+      id: { type: String, required: true },
+      name: { type: String, required: true },
+      items: [SkillItemSchema],
+    },
+    { _id: false }
+  );
+
+  const AboutSchema = new mongoose.Schema(
+    {
+      id: { type: String, required: true, unique: true },
+      myself: {
+        title: { type: String, required: true },
+        description: [{ type: String, required: true }],
+      },
+      skills: {
+        title: { type: String, required: true },
+        categories: [SkillCategorySchema],
+      },
+    },
+    {
+      timestamps: true,
+      versionKey: false,
+    }
+  );
+
+  // Expertise Schema
+  const ExpertiseSkillSchema = new mongoose.Schema(
+    {
+      id: { type: String, required: true },
+      name: { type: String, required: true },
+      percentage: { type: Number, required: true, min: 0, max: 100 },
+      category: { type: String, required: true },
+    },
+    { _id: false }
+  );
+
+  const ExpertiseCategorySchema = new mongoose.Schema(
+    {
+      id: { type: String, required: true },
+      name: { type: String, required: true },
+      skills: [ExpertiseSkillSchema],
+    },
+    { _id: false }
+  );
+
+  const ExpertiseSchema = new mongoose.Schema(
+    {
+      id: { type: String, required: true, unique: true },
+      title: { type: String, required: true },
+      subtitle: { type: String, required: true },
+      categories: [ExpertiseCategorySchema],
+    },
+    {
+      timestamps: true,
+      versionKey: false,
+    }
+  );
+
+  return {
+    About: mongoose.models.About || mongoose.model("About", AboutSchema),
+    Expertise:
+      mongoose.models.Expertise || mongoose.model("Expertise", ExpertiseSchema),
+  };
+}
+
+async function initializeData() {
   try {
-    const { default: mongoose } = await import("mongoose");
+    console.log("🚀 Starting database initialization...");
+
     await mongoDBConnection();
+    const { About, Expertise } = await createSchemas();
 
-    // Define About schema
-    const Schema = mongoose.Schema;
-
-    const SkillItemSchema = new Schema(
-      {
-        id: { type: String, required: true },
-        name: { type: String, required: true },
-        description: { type: String, required: true },
-      },
-      { _id: false }
-    );
-
-    const SkillCategorySchema = new Schema(
-      {
-        id: { type: String, required: true },
-        name: { type: String, required: true },
-        items: [SkillItemSchema],
-      },
-      { _id: false }
-    );
-
-    const AboutSchema = new Schema(
-      {
-        id: { type: String, required: true, unique: true },
-        myself: {
-          title: { type: String, required: true },
-          description: [{ type: String, required: true }],
-        },
-        skills: {
-          title: { type: String, required: true },
-          categories: [SkillCategorySchema],
-        },
-      },
-      {
-        timestamps: true,
-        versionKey: false,
-      }
-    );
-
-    const About = mongoose.models.About || mongoose.model("About", AboutSchema);
-
-    const existingData = await About.findOne({ id: "default-about" });
-
-    if (!existingData) {
+    // Initialize About data
+    const existingAbout = await About.findOne({ id: "default-about" });
+    if (!existingAbout) {
       const aboutDocument = new About(defaultAboutData);
       await aboutDocument.save();
       console.log("✅ Initialized about data with default values");
     } else {
       console.log("ℹ️ About data already exists");
     }
-  } catch (error) {
-    console.error("❌ Failed to initialize about data:", error);
-    throw error;
-  }
-}
 
-async function initializeExpertiseData() {
-  try {
-    const { default: mongoose } = await import("mongoose");
-    await mongoDBConnection();
-
-    // Define Expertise schema
-    const Schema = mongoose.Schema;
-
-    const ExpertiseSkillSchema = new Schema(
-      {
-        id: { type: String, required: true },
-        name: { type: String, required: true },
-        percentage: { type: Number, required: true, min: 0, max: 100 },
-        category: { type: String, required: true },
-      },
-      { _id: false }
-    );
-
-    const ExpertiseCategorySchema = new Schema(
-      {
-        id: { type: String, required: true },
-        name: { type: String, required: true },
-        skills: [ExpertiseSkillSchema],
-      },
-      { _id: false }
-    );
-
-    const ExpertiseSchema = new Schema(
-      {
-        id: { type: String, required: true, unique: true },
-        title: { type: String, required: true },
-        subtitle: { type: String, required: true },
-        categories: [ExpertiseCategorySchema],
-      },
-      {
-        timestamps: true,
-        versionKey: false,
-      }
-    );
-
-    const Expertise =
-      mongoose.models.Expertise || mongoose.model("Expertise", ExpertiseSchema);
-
-    const existingData = await Expertise.findOne({ id: "default-expertise" });
-
-    if (!existingData) {
+    // Initialize Expertise data
+    const existingExpertise = await Expertise.findOne({
+      id: "default-expertise",
+    });
+    if (!existingExpertise) {
       const expertiseDocument = new Expertise(defaultExpertiseData);
       await expertiseDocument.save();
       console.log("✅ Initialized expertise data with default values");
     } else {
       console.log("ℹ️ Expertise data already exists");
     }
-  } catch (error) {
-    console.error("❌ Failed to initialize expertise data:", error);
-    throw error;
-  }
-}
 
-async function main() {
-  console.log("🚀 Starting database initialization...");
-
-  try {
-    await initializeAboutData();
-    await initializeExpertiseData();
     console.log("✅ Database initialization completed successfully!");
     process.exit(0);
   } catch (error) {
@@ -288,4 +277,4 @@ async function main() {
   }
 }
 
-main();
+initializeData();
