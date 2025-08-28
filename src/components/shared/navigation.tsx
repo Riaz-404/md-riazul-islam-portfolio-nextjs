@@ -47,8 +47,10 @@ export function Navigation() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollToSection = (href: string) => {
-    if (href.startsWith("#")) {
+  const handleNavigation = (href: string, external?: boolean) => {
+    if (external) {
+      window.location.href = href;
+    } else if (href.startsWith("#")) {
       const element = document.querySelector(href);
       if (element) {
         element.scrollIntoView({ behavior: "smooth" });
@@ -86,7 +88,9 @@ export function Navigation() {
                         key={link.href}
                         variant="ghost"
                         className="justify-start text-lg font-medium"
-                        onClick={() => scrollToSection(link.href)}
+                        onClick={() =>
+                          handleNavigation(link.href, link.external)
+                        }
                       >
                         {link.label}
                       </Button>
@@ -133,7 +137,7 @@ export function Navigation() {
               {navigationLinks.map((link) => (
                 <motion.button
                   key={link.href}
-                  onClick={() => scrollToSection(link.href)}
+                  onClick={() => handleNavigation(link.href)}
                   className="relative text-foreground hover:text-primary transition-colors duration-200 font-medium cursor-pointer pb-2 group"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

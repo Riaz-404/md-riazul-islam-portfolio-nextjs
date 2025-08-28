@@ -51,6 +51,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Font Awesome */}
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+        />
+        {/* Themify Icons */}
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/themify-icons@0.1.2/css/themify-icons.css"
+        />
+      </head>
       <body
         className={`${workSans.variable} ${roboto.variable} ${poppins.variable} font-roboto antialiased`}
       >

@@ -10,9 +10,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import { Plus, Trash2, Save, RefreshCw } from "lucide-react";
+import { FileUpload } from "@/components/ui/file-upload";
+import { ProjectImageDisplay } from "@/components/ui/project-image";
+import { Plus, Trash2, Save, RefreshCw, Edit, Eye } from "lucide-react";
 import { AboutData, defaultAboutData } from "@/types/about";
 import { ExpertiseData } from "@/types/expertise";
+import {
+  ProjectData,
+  ProjectFormData as ProjectFormDataType,
+  defaultProjectData,
+  projectCategories,
+  frameworks,
+} from "@/types/project";
 import {
   Form,
   FormControl,
@@ -21,6 +30,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 // About schema
 const aboutSchema = z.object({
@@ -68,8 +85,30 @@ const expertiseSchema = z.object({
   ),
 });
 
+// Project schema
+const projectSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  features: z.array(z.string().min(1, "Feature is required")),
+  shortDescription: z.string().min(1, "Short description is required").max(200),
+  category: z.string().min(1, "Category is required"),
+  framework: z.string().min(1, "Framework is required"),
+  duration: z.string().min(1, "Duration is required"),
+  createdDate: z.date(),
+  responsive: z.boolean(),
+  browserCompatible: z.boolean(),
+  documentation: z.boolean(),
+  tags: z.array(z.string().min(1, "Tag is required")),
+  liveUrl: z.string().url().optional().or(z.literal("")),
+  frontendCodeUrl: z.string().url().optional().or(z.literal("")),
+  backendCodeUrl: z.string().url().optional().or(z.literal("")),
+  featured: z.boolean(),
+  order: z.number().min(0),
+});
+
 type AboutFormData = z.infer<typeof aboutSchema>;
 type ExpertiseFormData = z.infer<typeof expertiseSchema>;
+type ProjectFormData = z.infer<typeof projectSchema>;
 
 export default function AdminPanel() {
   const [aboutData, setAboutData] = React.useState<AboutData>(defaultAboutData);
@@ -78,6 +117,17 @@ export default function AdminPanel() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState("myself");
+
+  // Projects state
+  const [projects, setProjects] = React.useState<ProjectData[]>([]);
+  const [editingProject, setEditingProject] =
+    React.useState<ProjectData | null>(null);
+  const [isProjectFormOpen, setIsProjectFormOpen] = React.useState(false);
+  const [projectImages, setProjectImages] = React.useState({
+    mainImage: [] as File[],
+    fullPageImage: [] as File[],
+    additionalImages: [] as File[],
+  });
 
   // About form
   const aboutForm = useForm<AboutFormData>({
@@ -95,6 +145,30 @@ export default function AdminPanel() {
       title: "Expertise",
       subtitle: "Skills Set",
       categories: [],
+    },
+  });
+
+  // Project form
+  const projectForm = useForm<ProjectFormData>({
+    resolver: zodResolver(projectSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      features: [""],
+      shortDescription: "",
+      category: "",
+      framework: "",
+      duration: "",
+      createdDate: new Date(),
+      responsive: true,
+      browserCompatible: true,
+      documentation: true,
+      tags: [""],
+      liveUrl: "",
+      frontendCodeUrl: "",
+      backendCodeUrl: "",
+      featured: false,
+      order: 0,
     },
   });
 
@@ -122,6 +196,7 @@ export default function AdminPanel() {
   React.useEffect(() => {
     fetchAboutData();
     fetchExpertiseData();
+    fetchProjects();
   }, []);
 
   const fetchAboutData = async () => {
@@ -158,6 +233,20 @@ export default function AdminPanel() {
       }
     } catch (error) {
       console.error("Failed to fetch expertise data:", error);
+    }
+  };
+
+  const fetchProjects = async () => {
+    try {
+      const response = await fetch("/api/projects");
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          setProjects(result.data);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch projects:", error);
     }
   };
 
@@ -214,6 +303,155 @@ export default function AdminPanel() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  // Project form submission
+  const onSubmitProject = async (data: ProjectFormData) => {
+    setIsSaving(true);
+    try {
+      const formData = new FormData();
+
+      // Add text fields
+      formData.append("title", data.title);
+      formData.append("shortDescription", data.shortDescription);
+      formData.append("category", data.category);
+      formData.append("framework", data.framework);
+      formData.append("duration", data.duration);
+      formData.append("createdDate", data.createdDate.toISOString());
+      formData.append("responsive", data.responsive.toString());
+      formData.append("browserCompatible", data.browserCompatible.toString());
+      formData.append("documentation", data.documentation.toString());
+      formData.append("featured", data.featured.toString());
+      formData.append("order", data.order.toString());
+
+      if (data.liveUrl) formData.append("liveUrl", data.liveUrl);
+      if (data.frontendCodeUrl)
+        formData.append("frontendCodeUrl", data.frontendCodeUrl);
+      if (data.backendCodeUrl)
+        formData.append("backendCodeUrl", data.backendCodeUrl);
+
+      // Add arrays as JSON
+      formData.append("description", JSON.stringify(data.description));
+      formData.append("features", JSON.stringify(data.features));
+      formData.append("tags", JSON.stringify(data.tags));
+
+      // Add images
+      if (projectImages.mainImage[0]) {
+        formData.append("mainImage", projectImages.mainImage[0]);
+      }
+      if (projectImages.fullPageImage[0]) {
+        formData.append("fullPageImage", projectImages.fullPageImage[0]);
+      }
+      projectImages.additionalImages.forEach((file, index) => {
+        formData.append(`additionalImage_${index}`, file);
+      });
+
+      const url = editingProject
+        ? `/api/projects/${editingProject._id}`
+        : "/api/projects";
+      const method = editingProject ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method,
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert(
+          `Project ${editingProject ? "updated" : "created"} successfully!`
+        );
+        fetchProjects();
+        resetProjectForm();
+        setIsProjectFormOpen(false);
+      } else {
+        alert(
+          `Failed to ${editingProject ? "update" : "create"} project: ${
+            result.message
+          }`
+        );
+      }
+    } catch (error) {
+      console.error("Failed to save project:", error);
+      alert("An error occurred while saving project");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const deleteProject = async (projectId: string) => {
+    if (!confirm("Are you sure you want to delete this project?")) return;
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}`, {
+        method: "DELETE",
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert("Project deleted successfully!");
+        fetchProjects();
+      } else {
+        alert(`Failed to delete project: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Failed to delete project:", error);
+      alert("An error occurred while deleting project");
+    }
+  };
+
+  const resetProjectForm = () => {
+    projectForm.reset({
+      title: "",
+      description: "",
+      features: [""],
+      shortDescription: "",
+      category: "",
+      framework: "",
+      duration: "",
+      createdDate: new Date(),
+      responsive: true,
+      browserCompatible: true,
+      documentation: true,
+      tags: [""],
+      liveUrl: "",
+      frontendCodeUrl: "",
+      backendCodeUrl: "",
+      featured: false,
+      order: 0,
+    });
+    setProjectImages({
+      mainImage: [],
+      fullPageImage: [],
+      additionalImages: [],
+    });
+    setEditingProject(null);
+  };
+
+  const editProject = (project: ProjectData) => {
+    setEditingProject(project);
+    projectForm.reset({
+      title: project.title,
+      description: project.description,
+      features: project.features,
+      shortDescription: project.shortDescription,
+      category: project.category,
+      framework: project.framework,
+      duration: project.duration,
+      createdDate: new Date(project.createdDate),
+      responsive: project.responsive,
+      browserCompatible: project.browserCompatible,
+      documentation: project.documentation,
+      tags: project.tags,
+      liveUrl: project.liveUrl || "",
+      frontendCodeUrl: project.frontendCodeUrl || "",
+      backendCodeUrl: project.backendCodeUrl || "",
+      featured: project.featured,
+      order: project.order,
+    });
+    setIsProjectFormOpen(true);
   };
 
   // Helper functions for about form
@@ -301,10 +539,11 @@ export default function AdminPanel() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="myself">About Myself</TabsTrigger>
             <TabsTrigger value="skills">Skills</TabsTrigger>
             <TabsTrigger value="expertise">Expertise</TabsTrigger>
+            <TabsTrigger value="projects">Projects</TabsTrigger>
           </TabsList>
 
           {/* About Myself Tab */}
@@ -797,6 +1036,490 @@ export default function AdminPanel() {
                 </div>
               </form>
             </Form>
+          </TabsContent>
+
+          {/* Projects Tab */}
+          <TabsContent value="projects" className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Project Management</h2>
+              <Button
+                onClick={() => {
+                  resetProjectForm();
+                  setIsProjectFormOpen(true);
+                }}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add New Project
+              </Button>
+            </div>
+
+            {/* Projects List */}
+            <div className="grid gap-4">
+              {projects.map((project) => (
+                <Card key={project._id} className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden">
+                        <ProjectImageDisplay
+                          image={project.mainImage}
+                          alt={project.title}
+                          width={64}
+                          height={64}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg">
+                          {project.title}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {project.category} • {project.framework}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {project.shortDescription}
+                        </p>
+                        {project.featured && (
+                          <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded mt-1">
+                            Featured
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => editProject(project)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => deleteProject(project._id!)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+
+              {projects.length === 0 && (
+                <Card className="p-8 text-center">
+                  <p className="text-gray-500">
+                    No projects found. Click "Add New Project" to create your
+                    first project.
+                  </p>
+                </Card>
+              )}
+            </div>
+
+            {/* Project Form Modal/Sheet */}
+            {isProjectFormOpen && (
+              <Card className="mt-6">
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <CardTitle>
+                      {editingProject ? "Edit Project" : "Add New Project"}
+                    </CardTitle>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setIsProjectFormOpen(false);
+                        resetProjectForm();
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <Form {...projectForm}>
+                    <form
+                      onSubmit={projectForm.handleSubmit(onSubmitProject)}
+                      className="space-y-6"
+                    >
+                      {/* Basic Information */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={projectForm.control}
+                          name="title"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Project Title *</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="e.g., Auto Car Shop"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={projectForm.control}
+                          name="category"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Category *</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a category" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {projectCategories.map((category) => (
+                                    <SelectItem key={category} value={category}>
+                                      {category}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={projectForm.control}
+                          name="framework"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Framework *</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a framework" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {frameworks.map((framework) => (
+                                    <SelectItem
+                                      key={framework}
+                                      value={framework}
+                                    >
+                                      {framework}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={projectForm.control}
+                          name="duration"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Duration *</FormLabel>
+                              <FormControl>
+                                <Input {...field} placeholder="e.g., 2 weeks" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      {/* Short Description */}
+                      <FormField
+                        control={projectForm.control}
+                        name="shortDescription"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Short Description *</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                {...field}
+                                placeholder="Brief description (max 200 characters)"
+                                maxLength={200}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {/* Project Settings */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <FormField
+                          control={projectForm.control}
+                          name="responsive"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                              <FormControl>
+                                <input
+                                  type="checkbox"
+                                  checked={field.value}
+                                  onChange={field.onChange}
+                                  className="mt-1"
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel>Responsive</FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={projectForm.control}
+                          name="browserCompatible"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                              <FormControl>
+                                <input
+                                  type="checkbox"
+                                  checked={field.value}
+                                  onChange={field.onChange}
+                                  className="mt-1"
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel>Browser Compatible</FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={projectForm.control}
+                          name="documentation"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                              <FormControl>
+                                <input
+                                  type="checkbox"
+                                  checked={field.value}
+                                  onChange={field.onChange}
+                                  className="mt-1"
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel>Documentation</FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={projectForm.control}
+                          name="featured"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                              <FormControl>
+                                <input
+                                  type="checkbox"
+                                  checked={field.value}
+                                  onChange={field.onChange}
+                                  className="mt-1"
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel>Featured</FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      {/* URLs */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <FormField
+                          control={projectForm.control}
+                          name="liveUrl"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Live URL</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="https://example.com"
+                                  type="url"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={projectForm.control}
+                          name="frontendCodeUrl"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Frontend Code URL</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="https://github.com/user/repo"
+                                  type="url"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={projectForm.control}
+                          name="backendCodeUrl"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Backend Code URL</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="https://github.com/user/repo-server"
+                                  type="url"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      {/* Order */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={projectForm.control}
+                          name="order"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Display Order</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  type="number"
+                                  min="0"
+                                  onChange={(e) =>
+                                    field.onChange(
+                                      parseInt(e.target.value) || 0
+                                    )
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={projectForm.control}
+                          name="createdDate"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Created Date</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  type="date"
+                                  value={
+                                    field.value?.toISOString().split("T")[0] ||
+                                    ""
+                                  }
+                                  onChange={(e) =>
+                                    field.onChange(new Date(e.target.value))
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      {/* Images */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold">
+                          Project Images
+                        </h3>
+
+                        <FileUpload
+                          label="Main Image"
+                          value={projectImages.mainImage}
+                          onChange={(files) =>
+                            setProjectImages((prev) => ({
+                              ...prev,
+                              mainImage: files,
+                            }))
+                          }
+                          required={!editingProject}
+                          description="Primary project image (required)"
+                        />
+
+                        <FileUpload
+                          label="Full Page Screenshot"
+                          value={projectImages.fullPageImage}
+                          onChange={(files) =>
+                            setProjectImages((prev) => ({
+                              ...prev,
+                              fullPageImage: files,
+                            }))
+                          }
+                          description="Full page screenshot of the project (optional)"
+                        />
+
+                        <FileUpload
+                          label="Additional Images"
+                          value={projectImages.additionalImages}
+                          onChange={(files) =>
+                            setProjectImages((prev) => ({
+                              ...prev,
+                              additionalImages: files,
+                            }))
+                          }
+                          multiple
+                          description="Additional project images (optional)"
+                        />
+                      </div>
+
+                      {/* Submit Button */}
+                      <div className="flex gap-4">
+                        <Button type="submit" disabled={isSaving}>
+                          {isSaving ? (
+                            <>
+                              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                              {editingProject ? "Updating..." : "Creating..."}
+                            </>
+                          ) : (
+                            <>
+                              <Save className="h-4 w-4 mr-2" />
+                              {editingProject
+                                ? "Update Project"
+                                : "Create Project"}
+                            </>
+                          )}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            setIsProjectFormOpen(false);
+                            resetProjectForm();
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
       </div>
