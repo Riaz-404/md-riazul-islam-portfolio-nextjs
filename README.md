@@ -1,36 +1,124 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Md. Riazul Islam - Portfolio Website
 
-## Getting Started
+A modern, responsive portfolio website built with Next.js 15, featuring a dark/light theme toggle and smooth animations.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Modern Tech Stack**: Built with Next.js 15, TypeScript, and Tailwind CSS
+- **Theme Toggle**: Seamless dark/light mode switching
+- **Responsive Design**: Optimized for all screen sizes
+- **Smooth Animations**: Enhanced user experience with motion/react
+- **SEO Optimized**: Meta tags and structured data for better search visibility
+- **Component-based Architecture**: Modular and maintainable code structure
+- **Server-Side Rendering**: Fast loading and better performance
+
+## 🛠 Tech Stack
+
+- **Framework**: Next.js 15
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Components**: shadcn/ui
+- **Animations**: motion/react (not framer-motion)
+- **Theme**: next-themes
+- **Icons**: Lucide React
+- **Fonts**: Work Sans, Roboto, Poppins
+
+## 🎨 Design
+
+The design maintains the same aesthetic as the original HTML/CSS/JS portfolio with:
+
+- Dark theme as default (matching original #0b090a background)
+- Primary accent color: #e1a34c (golden/orange)
+- Clean, professional layout
+- Animated text rotation for roles
+- Technology icons showcase
+- Social media integration
+
+## 📱 Sections
+
+### Navigation
+
+- Fixed navigation with scroll effect
+- Mobile-responsive hamburger menu
+- Social media links
+- Theme toggle button
+- Smooth scroll to sections
+
+### Hero Section
+
+- Profile image with hover effects
+- Animated role text rotation
+- Technology icons with tooltips
+- Download CV button
+- Responsive two-column layout
+
+## 🔧 Installation & Setup
+
+1. Clone the repository:
+
+   ```bash
+   git clone <repository-url>
+   cd md-riazul-islam-portfolio-nextjs
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   pnpm install
+   ```
+
+3. Run the development server:
+
+   ```bash
+   pnpm dev
+   ```
+
+4. Open [http://localhost:5000](http://localhost:5000) in your browser
+
+## 📁 Project Structure
+
+```
+src/
+├── app/
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── components/
+│   ├── ui/          # shadcn/ui components
+│   ├── client-only.tsx
+│   ├── hero-section.tsx
+│   ├── navigation.tsx
+│   ├── theme-provider.tsx
+│   └── theme-toggle.tsx
+└── lib/
+    └── utils.ts
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🎯 Performance Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Server-Side Rendering**: Pages are pre-rendered for faster loading
+- **Image Optimization**: Next.js Image component for optimized loading
+- **Code Splitting**: Automatic code splitting for better performance
+- **Font Optimization**: Google Fonts optimization with Next.js
+- **CSS Optimization**: Tailwind CSS purging for smaller bundle sizes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🌐 SEO Features
 
-## Learn More
+- Meta tags for better search engine visibility
+- Open Graph tags for social media sharing
+- Twitter Card support
+- Semantic HTML structure
+- Alt tags for images
+- Proper heading hierarchy
 
-To learn more about Next.js, take a look at the following resources:
+## 📄 License
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This project is private and belongs to Md. Riazul Islam.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🤝 Contributing
 
-## Deploy on Vercel
+This is a personal portfolio project. For any suggestions or feedback, please reach out through the contact section.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Note**: This is a modern Next.js conversion of the original HTML/CSS/JS portfolio, maintaining the same design and content while adding new features like theme switching and enhanced animations.
