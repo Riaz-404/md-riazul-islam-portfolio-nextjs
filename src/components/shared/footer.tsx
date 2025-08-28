@@ -13,12 +13,19 @@ export function Footer() {
                 <a
                   href="https://www.facebook.com/imriaz.cu/"
                   aria-label="Facebook"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <i className="fa-brands fa-facebook-f"></i>
                 </a>
               </li>
               <li className="list-inline-item">
-                <a href="https://twitter.com/?lang=en" aria-label="Twitter">
+                <a
+                  href="https://twitter.com/?lang=en"
+                  aria-label="Twitter"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <i className="fa-brands fa-twitter"></i>
                 </a>
               </li>
@@ -26,6 +33,8 @@ export function Footer() {
                 <a
                   href="https://www.instagram.com/i_m_riaz_/"
                   aria-label="Instagram"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <i className="fa-brands fa-instagram"></i>
                 </a>
@@ -34,12 +43,19 @@ export function Footer() {
                 <a
                   href="https://www.linkedin.com/in/md-riazul-islam-891b65194/"
                   aria-label="LinkedIn"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <i className="fa-brands fa-linkedin"></i>
                 </a>
               </li>
               <li className="list-inline-item">
-                <a href="https://github.com/Riaz-404" aria-label="Github">
+                <a
+                  href="https://github.com/Riaz-404"
+                  aria-label="Github"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <i className="fa-brands fa-github"></i>
                 </a>
               </li>
@@ -49,7 +65,7 @@ export function Footer() {
             <div>
               <p>
                 Designed by{" "}
-                <Link href="/#top" className="text-decoration-none">
+                <Link href="#top" className="smoth-scroll">
                   <span>Md. Riazul Islam</span>
                 </Link>
               </p>
@@ -57,7 +73,7 @@ export function Footer() {
           </div>
           <div className="col-lg-4">
             <p>&copy; {currentYear} All Rights Reserved.</p>
-            <Link href="#top" className="backtop" aria-label="Top">
+            <Link href="#top" className="backtop smoth-scroll" aria-label="Top">
               <i className="ti-angle-up"></i>
             </Link>
           </div>

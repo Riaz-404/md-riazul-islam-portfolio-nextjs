@@ -445,6 +445,29 @@
     color: rgba(255, 255, 255, 0.7);
   }
 
+  /* Updated styles for shadcn components */
+  .contact-input,
+  .contact-textarea {
+    transition: border-color 0.3s ease;
+  }
+
+  .contact-input:hover,
+  .contact-textarea:hover {
+    border-bottom-color: #e1a34c !important;
+  }
+
+  .contact-input:focus,
+  .contact-textarea:focus {
+    border-bottom-color: #e1a34c !important;
+    outline: none;
+    box-shadow: none !important;
+  }
+
+  .contact-input::placeholder,
+  .contact-textarea::placeholder {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
   /* Bootstrap Grid and Utilities */
   .container {
     width: 100%;
