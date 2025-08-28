@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Work_Sans, Roboto, Poppins } from "next/font/google";
 import "./globals.css";
 
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/shared/theme-provider";
 
 const workSans = Work_Sans({
   variable: "--font-work-sans",

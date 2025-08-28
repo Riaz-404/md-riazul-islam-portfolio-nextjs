@@ -1,19 +1,16 @@
-"use client";
-
 import * as React from "react";
 import Image from "next/image";
-import { motion } from "motion/react";
 import { Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-
-const rotatingTexts = [
-  "Programmer",
-  "Problem Solver",
-  "Full Stack Web Developer",
-  "MERN Stack Web Developer",
-  "Photography Lover",
-];
+import {
+  MotionDiv,
+  MotionH1,
+  MotionH2,
+  MotionP,
+  MotionSpan,
+} from "@/components/motion/motion-html-element";
+import { RotatingText } from "./rotating-text";
 
 const techIcons = [
   {
@@ -71,16 +68,6 @@ const techIcons = [
 ];
 
 export function HeroSection() {
-  const [currentTextIndex, setCurrentTextIndex] = React.useState(0);
-
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTextIndex((prev) => (prev + 1) % rotatingTexts.length);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -109,34 +96,35 @@ export function HeroSection() {
       className="min-h-screen flex items-center py-20 lg:py-28"
     >
       <div className="container mx-auto px-4">
-        <motion.div
+        <MotionDiv
           variants={containerVariants}
           initial="hidden"
           animate="visible"
           className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-center"
         >
           {/* Profile Image */}
-          <motion.div
+          <MotionDiv
             variants={itemVariants}
-            className="order-1 lg:order-1 flex justify-center lg:justify-start"
+            className="order-1 lg:order-1 flex justify-center"
           >
             <div className="relative">
-              <motion.div
-                className="w-80 h-80 lg:w-96 lg:h-96 rounded-xl overflow-hidden shadow-2xl"
+              <MotionDiv
+                className="w-80 h-96 lg:w-96 lg:h-130 rounded-xl overflow-hidden shadow-2xl"
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.3 }}
               >
                 <Image
-                  src="/images/home/IMG_20211125_201810.jpg"
+                  // src="/images/home/IMG_20211125_201810.jpg"
+                  src=""
                   alt="Md. Riazul Islam"
                   width={400}
                   height={400}
                   className="w-full h-full object-cover"
                   priority
                 />
-              </motion.div>
+              </MotionDiv>
               {/* Decorative elements */}
-              <motion.div
+              <MotionDiv
                 className="absolute -top-4 -right-4 w-8 h-8 bg-primary rounded-full"
                 animate={{
                   scale: [1, 1.2, 1],
@@ -148,7 +136,7 @@ export function HeroSection() {
                   ease: "easeInOut",
                 }}
               />
-              <motion.div
+              <MotionDiv
                 className="absolute -bottom-4 -left-4 w-6 h-6 bg-primary/60 rounded-full"
                 animate={{
                   scale: [1, 1.3, 1],
@@ -162,55 +150,46 @@ export function HeroSection() {
                 }}
               />
             </div>
-          </motion.div>
+          </MotionDiv>
 
           {/* Content */}
-          <motion.div
+          <MotionDiv
             variants={itemVariants}
             className="order-2 lg:order-2 text-center lg:text-left space-y-6"
           >
             {/* Name */}
-            <motion.h2
+            <MotionH2
               variants={itemVariants}
               className="text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground"
             >
               Md. Riazul Islam
-            </motion.h2>
+            </MotionH2>
 
             {/* Animated Role Text */}
-            <motion.div variants={itemVariants} className="relative">
-              <h1 className="text-xl lg:text-2xl xl:text-3xl font-normal">
+            <MotionDiv variants={itemVariants} className="relative">
+              <MotionH1 className="text-xl lg:text-2xl xl:text-3xl font-normal">
                 <span className="text-primary mr-2">—</span>
-                <motion.span
-                  key={currentTextIndex}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.5 }}
-                  className="text-primary inline-block"
-                >
-                  {rotatingTexts[currentTextIndex]}
-                </motion.span>
-              </h1>
-            </motion.div>
+                <RotatingText />
+              </MotionH1>
+            </MotionDiv>
 
             {/* Description */}
-            <motion.p
+            <MotionP
               variants={itemVariants}
               className="text-muted-foreground text-lg lg:text-xl leading-relaxed max-w-2xl"
             >
               I design and develop services for customers of all sizes,
               specializing in creating stylish, modern websites, web services
               and online stores.
-            </motion.p>
+            </MotionP>
 
             {/* Technology Icons */}
-            <motion.div
+            <MotionDiv
               variants={itemVariants}
               className="flex flex-wrap justify-center lg:justify-start gap-3 py-6"
             >
               {techIcons.map((tech, index) => (
-                <motion.div
+                <MotionDiv
                   key={tech.title}
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -235,12 +214,12 @@ export function HeroSection() {
                   <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
                     {tech.title}
                   </div>
-                </motion.div>
+                </MotionDiv>
               ))}
-            </motion.div>
+            </MotionDiv>
 
             {/* Download CV Button */}
-            <motion.div variants={itemVariants} className="pt-4">
+            <MotionDiv variants={itemVariants} className="pt-4">
               <Button
                 size="lg"
                 className="bg-transparent border-2 border-border hover:border-primary hover:bg-primary text-foreground hover:text-primary-foreground transition-all duration-300 px-8 py-3 text-lg font-medium"
@@ -251,9 +230,9 @@ export function HeroSection() {
                   Download CV
                 </a>
               </Button>
-            </motion.div>
-          </motion.div>
-        </motion.div>
+            </MotionDiv>
+          </MotionDiv>
+        </MotionDiv>
       </div>
     </section>
   );

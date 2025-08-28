@@ -7,7 +7,7 @@ import { Menu, X, Facebook, Linkedin, Github } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 
 const navigationLinks = [
   { href: "#home", label: "Home" },
