@@ -67,7 +67,7 @@ export function Navigation() {
           : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-8 lg:px-20">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Mobile Menu */}
           <div className="lg:hidden">
@@ -134,11 +134,13 @@ export function Navigation() {
                 <motion.button
                   key={link.href}
                   onClick={() => scrollToSection(link.href)}
-                  className="text-foreground hover:text-primary transition-colors duration-200 font-medium"
+                  className="relative text-foreground hover:text-primary transition-colors duration-200 font-medium cursor-pointer pb-2 group"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   {link.label}
+                  {/* Bottom border on hover */}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-200 group-hover:w-full"></span>
                 </motion.button>
               ))}
             </nav>
