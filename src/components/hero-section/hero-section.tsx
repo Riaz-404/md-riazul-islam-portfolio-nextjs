@@ -114,8 +114,8 @@ export function HeroSection() {
                 transition={{ duration: 0.3 }}
               >
                 <Image
-                  // src="/images/home/IMG_20211125_201810.jpg"
-                  src=""
+                  src="/images/home/IMG_20211125_201810.jpg"
+                  // src="abc"
                   alt="Md. Riazul Islam"
                   width={400}
                   height={400}

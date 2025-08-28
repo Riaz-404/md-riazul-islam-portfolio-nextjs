@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Check } from "lucide-react";
 import { AboutData, defaultAboutData } from "@/types/about";
+import { getAboutData as getAboutDataFromDB } from "@/lib/about-service";
 import {
   MotionDiv,
   MotionH2,
@@ -31,19 +32,9 @@ const itemVariants = {
 
 async function getAboutData(): Promise<AboutData> {
   try {
-    const response = await fetch(
-      `${
-        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000"
-      }/api/about`,
-      { cache: "no-store" } // Always fetch fresh data
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch about data");
-    }
-
-    const result = await response.json();
-    return result.success ? result.data : defaultAboutData;
+    // Use the service function directly instead of making HTTP request
+    const aboutData = await getAboutDataFromDB();
+    return aboutData;
   } catch (error) {
     console.error("Error fetching about data:", error);
     return defaultAboutData;

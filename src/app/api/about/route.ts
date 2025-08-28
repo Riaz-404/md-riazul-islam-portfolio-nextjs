@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AboutData, defaultAboutData } from "@/types/about";
-
-// In-memory storage (data resets when server restarts)
-let aboutData: AboutData = defaultAboutData;
+import { getAboutData, updateAboutData } from "@/lib/about-service";
 
 export async function GET() {
   try {
+    const aboutData = await getAboutData();
+
     return NextResponse.json({
       success: true,
       data: aboutData,
@@ -31,13 +30,10 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Update in-memory data
-    aboutData = {
-      id: aboutData.id,
-      myself: body.myself || aboutData.myself,
+    const aboutData = await updateAboutData({
+      myself: body.myself,
       skills: body.skills,
-      updatedAt: new Date().toISOString(),
-    };
+    });
 
     return NextResponse.json({
       success: true,

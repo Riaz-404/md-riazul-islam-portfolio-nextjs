@@ -1,14 +1,7 @@
-export interface AboutData {
+export interface SkillItem {
   id: string;
-  myself: {
-    title: string;
-    description: string[];
-  };
-  skills: {
-    title: string;
-    categories: SkillCategory[];
-  };
-  updatedAt: string;
+  name: string;
+  description: string;
 }
 
 export interface SkillCategory {
@@ -17,78 +10,81 @@ export interface SkillCategory {
   items: SkillItem[];
 }
 
-export interface SkillItem {
-  id: string;
-  name: string;
-  description: string;
+export interface AboutMyself {
+  title: string;
+  description: string[];
 }
 
-// Default fallback data from old website
+export interface AboutSkills {
+  title: string;
+  categories: SkillCategory[];
+}
+
+export interface AboutData {
+  id: string;
+  myself: AboutMyself;
+  skills: AboutSkills;
+  updatedAt: string;
+  createdAt?: string;
+}
+
 export const defaultAboutData: AboutData = {
-  id: "default",
+  id: "default-about",
   myself: {
-    title: "Myself",
+    title: "About Myself",
     description: [
-      "Hello! I'm <strong>Md. Riazul Islam</strong> a self-taught & passionate <strong>Programmer & Full Stack Web Developer</strong> with over one year work experience.",
-      "As an enthusiastic programmer, I enjoy solving various challenges. I also appreciate growing and acquiring new skills, and I am committed to my work. I work collaboratively with my clients to provide the best solutions for their needs.",
+      "I'm a passionate Full Stack Web Developer with expertise in modern web technologies. I love creating efficient, scalable, and user-friendly applications.",
+      "With a strong foundation in both frontend and backend development, I enjoy solving complex problems and building innovative solutions.",
     ],
   },
   skills: {
-    title: "Skills",
+    title: "My Skills",
     categories: [
       {
-        id: "category-1",
-        name: "Technical Skills",
+        id: "frontend",
+        name: "Frontend Development",
         items: [
           {
-            id: "skill-1",
-            name: "Programming Language",
-            description: "C++, Python, JavaScript",
+            id: "react",
+            name: "React.js",
+            description: "Building dynamic and interactive user interfaces",
           },
           {
-            id: "skill-2",
-            name: "Problem Solving",
-            description: "C++",
+            id: "nextjs",
+            name: "Next.js",
+            description:
+              "Full-stack React framework for production applications",
           },
           {
-            id: "skill-3",
-            name: "Application Dev",
-            description: "Android, iOS",
-          },
-          {
-            id: "skill-4",
-            name: "Version Control",
-            description: "Git, Github",
+            id: "tailwind",
+            name: "Tailwind CSS",
+            description: "Utility-first CSS framework for rapid UI development",
           },
         ],
       },
       {
-        id: "category-2",
-        name: "Web & Mobile",
+        id: "backend",
+        name: "Backend Development",
         items: [
           {
-            id: "skill-5",
-            name: "Web Designing",
-            description: "HTML, CSS",
+            id: "nodejs",
+            name: "Node.js",
+            description: "Server-side JavaScript runtime environment",
           },
           {
-            id: "skill-6",
-            name: "Web Development",
-            description: "React",
+            id: "mongodb",
+            name: "MongoDB",
+            description: "NoSQL database for modern applications",
           },
           {
-            id: "skill-7",
-            name: "Mobile Application",
-            description: "React Native",
-          },
-          {
-            id: "skill-8",
-            name: "Language",
-            description: "Bangla, English, Hindi",
+            id: "api",
+            name: "RESTful APIs",
+            description: "Designing and implementing scalable APIs",
           },
         ],
       },
     ],
   },
   updatedAt: new Date().toISOString(),
+  createdAt: new Date().toISOString(),
 };
