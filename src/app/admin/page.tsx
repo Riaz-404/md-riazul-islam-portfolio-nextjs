@@ -15,6 +15,7 @@ import { ProjectImageDisplay } from "@/components/ui/project-image";
 import { Plus, Trash2, Save, RefreshCw, Edit, Eye } from "lucide-react";
 import { AboutData, defaultAboutData } from "@/types/about";
 import { ExpertiseData } from "@/types/expertise";
+import { HeroData, defaultHeroData } from "@/types/hero";
 import {
   ProjectData,
   ProjectFormData as ProjectFormDataType,
@@ -106,17 +107,45 @@ const projectSchema = z.object({
   order: z.number().min(0),
 });
 
+// Hero schema
+const heroSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  rotatingTexts: z
+    .array(
+      z.object({
+        id: z.string(),
+        text: z.string().min(1, "Text is required"),
+      })
+    )
+    .min(1, "At least one rotating text is required"),
+  description: z.string().min(1, "Description is required"),
+  profileImage: z.string().min(1, "Profile image is required"),
+  cvDownloadUrl: z.string().min(1, "CV download URL is required"),
+  techIcons: z.array(
+    z.object({
+      id: z.string(),
+      src: z.string().min(1, "Icon source is required"),
+      title: z.string().min(1, "Icon title is required"),
+    })
+  ),
+});
+
 type AboutFormData = z.infer<typeof aboutSchema>;
 type ExpertiseFormData = z.infer<typeof expertiseSchema>;
 type ProjectFormData = z.infer<typeof projectSchema>;
+type HeroFormData = z.infer<typeof heroSchema>;
 
 export default function AdminPanel() {
   const [aboutData, setAboutData] = React.useState<AboutData>(defaultAboutData);
   const [expertiseData, setExpertiseData] =
     React.useState<ExpertiseData | null>(null);
+  const [heroData, setHeroData] = React.useState<HeroData>({
+    id: "hero-1",
+    ...defaultHeroData,
+  });
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
-  const [activeTab, setActiveTab] = React.useState("myself");
+  const [activeTab, setActiveTab] = React.useState("hero");
 
   // Projects state
   const [projects, setProjects] = React.useState<ProjectData[]>([]);
@@ -172,6 +201,19 @@ export default function AdminPanel() {
     },
   });
 
+  // Hero form
+  const heroForm = useForm<HeroFormData>({
+    resolver: zodResolver(heroSchema),
+    defaultValues: {
+      name: heroData.name,
+      rotatingTexts: heroData.rotatingTexts,
+      description: heroData.description,
+      profileImage: heroData.profileImage,
+      cvDownloadUrl: heroData.cvDownloadUrl,
+      techIcons: heroData.techIcons,
+    },
+  });
+
   // About form arrays
   const {
     fields: skillCategories,
@@ -192,11 +234,31 @@ export default function AdminPanel() {
     name: "categories",
   });
 
+  // Hero form arrays
+  const {
+    fields: rotatingTexts,
+    append: appendRotatingText,
+    remove: removeRotatingText,
+  } = useFieldArray({
+    control: heroForm.control,
+    name: "rotatingTexts",
+  });
+
+  const {
+    fields: techIcons,
+    append: appendTechIcon,
+    remove: removeTechIcon,
+  } = useFieldArray({
+    control: heroForm.control,
+    name: "techIcons",
+  });
+
   // Fetch data on component mount
   React.useEffect(() => {
     fetchAboutData();
     fetchExpertiseData();
     fetchProjects();
+    fetchHeroData();
   }, []);
 
   const fetchAboutData = async () => {
@@ -247,6 +309,29 @@ export default function AdminPanel() {
       }
     } catch (error) {
       console.error("Failed to fetch projects:", error);
+    }
+  };
+
+  const fetchHeroData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/hero");
+      if (response.ok) {
+        const data = await response.json();
+        setHeroData(data);
+        heroForm.reset({
+          name: data.name,
+          rotatingTexts: data.rotatingTexts,
+          description: data.description,
+          profileImage: data.profileImage,
+          cvDownloadUrl: data.cvDownloadUrl,
+          techIcons: data.techIcons,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to fetch hero data:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -402,6 +487,33 @@ export default function AdminPanel() {
     }
   };
 
+  // Hero form submission
+  const onSubmitHero = async (data: HeroFormData) => {
+    setIsSaving(true);
+    try {
+      const response = await fetch("/api/hero", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setHeroData(result);
+        alert("Hero data saved successfully!");
+      } else {
+        alert("Failed to save hero data");
+      }
+    } catch (error) {
+      console.error("Failed to save hero data:", error);
+      alert("An error occurred while saving");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const resetProjectForm = () => {
     projectForm.reset({
       title: "",
@@ -539,12 +651,227 @@ export default function AdminPanel() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="hero">Hero Section</TabsTrigger>
             <TabsTrigger value="myself">About Myself</TabsTrigger>
             <TabsTrigger value="skills">Skills</TabsTrigger>
             <TabsTrigger value="expertise">Expertise</TabsTrigger>
             <TabsTrigger value="projects">Projects</TabsTrigger>
           </TabsList>
+
+          {/* Hero Section Tab */}
+          <TabsContent value="hero" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Hero Section</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Form {...heroForm}>
+                  <form
+                    onSubmit={heroForm.handleSubmit(onSubmitHero)}
+                    className="space-y-6"
+                  >
+                    {/* Name */}
+                    <FormField
+                      control={heroForm.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Enter your name" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Description */}
+                    <FormField
+                      control={heroForm.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Description</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              {...field}
+                              placeholder="Enter description"
+                              rows={4}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Profile Image */}
+                    <FormField
+                      control={heroForm.control}
+                      name="profileImage"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Profile Image URL</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="Enter profile image URL"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* CV Download URL */}
+                    <FormField
+                      control={heroForm.control}
+                      name="cvDownloadUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>CV Download URL</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="Enter CV download URL"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Rotating Texts */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label>Rotating Texts</Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            appendRotatingText({
+                              id: `text-${Date.now()}`,
+                              text: "",
+                            })
+                          }
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Text
+                        </Button>
+                      </div>
+
+                      {rotatingTexts.map((field, index) => (
+                        <div key={field.id} className="flex gap-2">
+                          <FormField
+                            control={heroForm.control}
+                            name={`rotatingTexts.${index}.text`}
+                            render={({ field: textField }) => (
+                              <FormItem className="flex-1">
+                                <FormControl>
+                                  <Input
+                                    {...textField}
+                                    placeholder="Enter rotating text"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => removeRotatingText(index)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Tech Icons */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label>Tech Icons</Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            appendTechIcon({
+                              id: `icon-${Date.now()}`,
+                              src: "",
+                              title: "",
+                            })
+                          }
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Icon
+                        </Button>
+                      </div>
+
+                      {techIcons.map((field, index) => (
+                        <div key={field.id} className="space-y-2">
+                          <div className="flex gap-2">
+                            <FormField
+                              control={heroForm.control}
+                              name={`techIcons.${index}.title`}
+                              render={({ field: titleField }) => (
+                                <FormItem className="flex-1">
+                                  <FormControl>
+                                    <Input
+                                      {...titleField}
+                                      placeholder="Icon title"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => removeTechIcon(index)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <FormField
+                            control={heroForm.control}
+                            name={`techIcons.${index}.src`}
+                            render={({ field: srcField }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input {...srcField} placeholder="Icon URL" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    <Button type="submit" disabled={isSaving}>
+                      {isSaving ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4 mr-2" />
+                          Save Hero Data
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* About Myself Tab */}
           <TabsContent value="myself" className="space-y-4">

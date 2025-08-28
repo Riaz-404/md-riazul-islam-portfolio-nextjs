@@ -8,66 +8,34 @@ import {
   MotionH1,
   MotionH2,
   MotionP,
-  MotionSpan,
 } from "@/components/motion/motion-html-element";
 import { RotatingText } from "./rotating-text";
+import { HeroData } from "@/types/hero";
 
-const techIcons = [
-  {
-    src: "https://img.icons8.com/color/48/000000/c-plus-plus-logo.png",
-    title: "C++",
-  },
-  {
-    src: "https://img.icons8.com/color/48/000000/python--v1.png",
-    title: "Python",
-  },
-  {
-    src: "https://img.icons8.com/color/48/000000/javascript--v1.png",
-    title: "JavaScript",
-  },
-  {
-    src: "/images/home/react.svg",
-    title: "React",
-  },
-  {
-    src: "https://img.icons8.com/external-tal-revivo-shadow-tal-revivo/48/000000/external-mongodb-a-cross-platform-document-oriented-database-program-logo-shadow-tal-revivo.png",
-    title: "MongoDB",
-  },
-  {
-    src: "https://img.icons8.com/fluency/48/000000/node-js.png",
-    title: "NodeJS",
-  },
-  {
-    src: "https://img.icons8.com/color/48/000000/html-5--v1.png",
-    title: "HTML5",
-  },
-  {
-    src: "https://img.icons8.com/color/48/000000/css3.png",
-    title: "CSS3",
-  },
-  {
-    src: "https://img.icons8.com/color/48/000000/sass.png",
-    title: "SCSS",
-  },
-  {
-    src: "https://img.icons8.com/color/48/000000/bootstrap.png",
-    title: "Bootstrap",
-  },
-  {
-    src: "https://img.icons8.com/color/48/000000/material-ui.png",
-    title: "Material-UI",
-  },
-  {
-    src: "https://img.icons8.com/color/48/000000/firebase.png",
-    title: "Firebase",
-  },
-  {
-    src: "https://img.icons8.com/color/48/000000/mysql-logo.png",
-    title: "MySQL",
-  },
-];
+async function getHeroData(): Promise<HeroData> {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/hero`,
+      {
+        cache: "no-store",
+      }
+    );
 
-export function HeroSection() {
+    if (!response.ok) {
+      throw new Error("Failed to fetch hero data");
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("Error fetching hero data:", error);
+    // Return default data as fallback
+    const { defaultHeroData } = await import("@/types/hero");
+    return { id: "hero-1", ...defaultHeroData };
+  }
+}
+
+export async function HeroSection() {
+  const heroData = await getHeroData();
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -114,9 +82,8 @@ export function HeroSection() {
                 transition={{ duration: 0.3 }}
               >
                 <Image
-                  src="/images/home/IMG_20211125_201810.jpg"
-                  // src="abc"
-                  alt="Md. Riazul Islam"
+                  src={heroData.profileImage}
+                  alt={heroData.name}
                   width={400}
                   height={400}
                   className="w-full h-full object-cover"
@@ -162,14 +129,14 @@ export function HeroSection() {
               variants={itemVariants}
               className="text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground"
             >
-              Md. Riazul Islam
+              {heroData.name}
             </MotionH2>
 
             {/* Animated Role Text */}
             <MotionDiv variants={itemVariants} className="relative">
               <MotionH1 className="text-xl lg:text-2xl xl:text-3xl font-normal">
                 <span className="text-primary mr-2">—</span>
-                <RotatingText />
+                <RotatingText rotatingTexts={heroData.rotatingTexts} />
               </MotionH1>
             </MotionDiv>
 
@@ -178,9 +145,7 @@ export function HeroSection() {
               variants={itemVariants}
               className="text-muted-foreground text-lg lg:text-xl leading-relaxed max-w-2xl"
             >
-              I design and develop services for customers of all sizes,
-              specializing in creating stylish, modern websites, web services
-              and online stores.
+              {heroData.description}
             </MotionP>
 
             {/* Technology Icons */}
@@ -188,9 +153,9 @@ export function HeroSection() {
               variants={itemVariants}
               className="flex flex-wrap justify-center lg:justify-start gap-3 py-6"
             >
-              {techIcons.map((tech, index) => (
+              {heroData.techIcons.map((tech, index) => (
                 <MotionDiv
-                  key={tech.title}
+                  key={tech.id}
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{
@@ -225,7 +190,10 @@ export function HeroSection() {
                 className="bg-transparent border-2 border-border hover:border-primary hover:bg-primary text-foreground hover:text-primary-foreground transition-all duration-300 px-8 py-3 text-lg font-medium"
                 asChild
               >
-                <a href="#" className="inline-flex items-center gap-2">
+                <a
+                  href={heroData.cvDownloadUrl}
+                  className="inline-flex items-center gap-2"
+                >
                   <Download className="w-5 h-5" />
                   Download CV
                 </a>
