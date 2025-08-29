@@ -48,7 +48,7 @@ export async function Footer() {
             <p className="text-muted-foreground">
               Designed by{" "}
               <Link
-                href="#top"
+                href="/"
                 className="text-primary hover:text-accent transition-colors duration-300 font-medium"
               >
                 Md. Riazul Islam

@@ -71,12 +71,12 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <div className="container-custom content-constrained">
           <div className="text-center">
             <Button
-              variant="outline"
+              variant="ghost"
               asChild
-              className="mb-6 border-border bg-transparent text-foreground hover:bg-muted"
+              className="mb-6 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-300"
             >
               <Link
-                href="/#projects"
+                href="/projects"
                 className="flex items-center justify-center w-fit mx-auto"
                 style={{ textDecoration: "none" }}
               >
