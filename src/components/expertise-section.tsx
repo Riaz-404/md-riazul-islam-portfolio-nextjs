@@ -92,13 +92,13 @@ export async function ExpertiseSection() {
 
   return (
     <section id="expertise" className="py-20 lg:py-28 bg-muted/30">
-      <div className="container mx-auto px-4">
+      <div className="container">
         <MotionDiv
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="space-y-16"
+          className="space-y-16 max-w-5xl mx-auto"
         >
           {/* Section Header */}
           <div className="text-center max-w-3xl mx-auto">

@@ -46,13 +46,13 @@ export async function AboutSection() {
 
   return (
     <section id="about" className="py-20 lg:py-28">
-      <div className="container mx-auto px-4">
+      <div className="container">
         <MotionDiv
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="space-y-16"
+          className="space-y-16 max-w-6xl mx-auto"
         >
           {/* Myself Section */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12">

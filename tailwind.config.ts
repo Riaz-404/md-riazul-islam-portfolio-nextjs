@@ -8,6 +8,23 @@ export default {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    container: {
+      center: true,
+      padding: {
+        DEFAULT: "1rem",
+        sm: "1rem",
+        lg: "1.5rem",
+        xl: "2rem",
+        "2xl": "2rem",
+      },
+      screens: {
+        sm: "540px",
+        md: "720px",
+        lg: "900px", // Reduced from 960px
+        xl: "1000px", // Reduced from 1140px
+        "2xl": "1100px", // Reduced from 1320px
+      },
+    },
     extend: {
       fontFamily: {
         "work-sans": ["var(--font-work-sans)", "sans-serif"],

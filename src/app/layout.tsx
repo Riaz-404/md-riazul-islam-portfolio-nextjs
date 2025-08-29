@@ -3,6 +3,7 @@ import { Work_Sans, Roboto, Poppins } from "next/font/google";
 import "./globals.css";
 
 import { ThemeProvider } from "@/components/shared/theme-provider";
+import { Toaster } from "sonner";
 
 const workSans = Work_Sans({
   variable: "--font-work-sans",
@@ -64,7 +65,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${workSans.variable} ${roboto.variable} ${poppins.variable} font-roboto antialiased`}
+        className={`${workSans.variable} ${roboto.variable} ${poppins.variable} font-roboto antialiased overflow-x-hidden`}
       >
         <ThemeProvider
           attribute="class"
@@ -72,7 +73,10 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange={false}
         >
-          {children}
+          <main className="grow min-h-screen max-w-screen overflow-x-hidden">
+            {children}
+          </main>
+          <Toaster position="top-right" richColors expand theme="system" />
         </ThemeProvider>
       </body>
     </html>

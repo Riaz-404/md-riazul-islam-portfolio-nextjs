@@ -13,9 +13,11 @@ import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { FileUpload } from "@/components/ui/file-upload";
 import { ProjectImageDisplay } from "@/components/ui/project-image";
 import { Plus, Trash2, Save, RefreshCw, Edit, Eye } from "lucide-react";
+import { toast } from "sonner";
 import { AboutData, defaultAboutData } from "@/types/about";
 import { ExpertiseData } from "@/types/expertise";
 import { HeroData, defaultHeroData } from "@/types/hero";
+import { NavigationData, defaultNavigationData } from "@/types/navigation";
 import {
   ProjectData,
   ProjectFormData as ProjectFormDataType,
@@ -130,10 +132,34 @@ const heroSchema = z.object({
   ),
 });
 
+// Navigation schema
+const navigationSchema = z.object({
+  navigationLinks: z.array(
+    z.object({
+      id: z.string(),
+      label: z.string().min(1, "Label is required"),
+      href: z.string().min(1, "Href is required"),
+      order: z.number().min(0, "Order must be non-negative"),
+      isActive: z.boolean(),
+    })
+  ),
+  socialLinks: z.array(
+    z.object({
+      id: z.string(),
+      href: z.string().url("Must be a valid URL"),
+      icon: z.string().min(1, "Icon is required"),
+      label: z.string().min(1, "Label is required"),
+      order: z.number().min(0, "Order must be non-negative"),
+      isActive: z.boolean(),
+    })
+  ),
+});
+
 type AboutFormData = z.infer<typeof aboutSchema>;
 type ExpertiseFormData = z.infer<typeof expertiseSchema>;
 type ProjectFormData = z.infer<typeof projectSchema>;
 type HeroFormData = z.infer<typeof heroSchema>;
+type NavigationFormData = z.infer<typeof navigationSchema>;
 
 export default function AdminPanel() {
   const [aboutData, setAboutData] = React.useState<AboutData>(defaultAboutData);
@@ -142,6 +168,10 @@ export default function AdminPanel() {
   const [heroData, setHeroData] = React.useState<HeroData>({
     id: "hero-1",
     ...defaultHeroData,
+  });
+  const [navigationData, setNavigationData] = React.useState<NavigationData>({
+    id: "navigation-1",
+    ...defaultNavigationData,
   });
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
@@ -214,6 +244,15 @@ export default function AdminPanel() {
     },
   });
 
+  // Navigation form
+  const navigationForm = useForm<NavigationFormData>({
+    resolver: zodResolver(navigationSchema),
+    defaultValues: {
+      navigationLinks: navigationData.navigationLinks,
+      socialLinks: navigationData.socialLinks,
+    },
+  });
+
   // About form arrays
   const {
     fields: skillCategories,
@@ -253,12 +292,32 @@ export default function AdminPanel() {
     name: "techIcons",
   });
 
+  // Navigation form arrays
+  const {
+    fields: navigationLinks,
+    append: appendNavigationLink,
+    remove: removeNavigationLink,
+  } = useFieldArray({
+    control: navigationForm.control,
+    name: "navigationLinks",
+  });
+
+  const {
+    fields: socialLinks,
+    append: appendSocialLink,
+    remove: removeSocialLink,
+  } = useFieldArray({
+    control: navigationForm.control,
+    name: "socialLinks",
+  });
+
   // Fetch data on component mount
   React.useEffect(() => {
     fetchAboutData();
     fetchExpertiseData();
     fetchProjects();
     fetchHeroData();
+    fetchNavigationData();
   }, []);
 
   const fetchAboutData = async () => {
@@ -335,6 +394,25 @@ export default function AdminPanel() {
     }
   };
 
+  const fetchNavigationData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/navigation");
+      if (response.ok) {
+        const data = await response.json();
+        setNavigationData(data);
+        navigationForm.reset({
+          navigationLinks: data.navigationLinks,
+          socialLinks: data.socialLinks,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to fetch navigation data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // About form submission
   const onSubmitAbout = async (data: AboutFormData) => {
     setIsSaving(true);
@@ -351,13 +429,13 @@ export default function AdminPanel() {
 
       if (result.success) {
         setAboutData(result.data);
-        alert("About data saved successfully!");
+        toast.success("About data saved successfully!");
       } else {
-        alert("Failed to save about data");
+        toast.error("Failed to save about data");
       }
     } catch (error) {
       console.error("Failed to save about data:", error);
-      alert("An error occurred while saving");
+      toast.error("An error occurred while saving");
     } finally {
       setIsSaving(false);
     }
@@ -378,13 +456,13 @@ export default function AdminPanel() {
       if (response.ok) {
         const result = await response.json();
         setExpertiseData(result);
-        alert("Expertise data saved successfully!");
+        toast.success("Expertise data saved successfully!");
       } else {
-        alert("Failed to save expertise data");
+        toast.error("Failed to save expertise data");
       }
     } catch (error) {
       console.error("Failed to save expertise data:", error);
-      alert("An error occurred while saving");
+      toast.error("An error occurred while saving");
     } finally {
       setIsSaving(false);
     }
@@ -444,14 +522,14 @@ export default function AdminPanel() {
       const result = await response.json();
 
       if (result.success) {
-        alert(
+        toast.success(
           `Project ${editingProject ? "updated" : "created"} successfully!`
         );
         fetchProjects();
         resetProjectForm();
         setIsProjectFormOpen(false);
       } else {
-        alert(
+        toast.error(
           `Failed to ${editingProject ? "update" : "create"} project: ${
             result.message
           }`
@@ -459,7 +537,7 @@ export default function AdminPanel() {
       }
     } catch (error) {
       console.error("Failed to save project:", error);
-      alert("An error occurred while saving project");
+      toast.error("An error occurred while saving project");
     } finally {
       setIsSaving(false);
     }
@@ -476,14 +554,14 @@ export default function AdminPanel() {
       const result = await response.json();
 
       if (result.success) {
-        alert("Project deleted successfully!");
+        toast.success("Project deleted successfully!");
         fetchProjects();
       } else {
-        alert(`Failed to delete project: ${result.message}`);
+        toast.error(`Failed to delete project: ${result.message}`);
       }
     } catch (error) {
       console.error("Failed to delete project:", error);
-      alert("An error occurred while deleting project");
+      toast.error("An error occurred while deleting project");
     }
   };
 
@@ -502,13 +580,43 @@ export default function AdminPanel() {
       if (response.ok) {
         const result = await response.json();
         setHeroData(result);
-        alert("Hero data saved successfully!");
+        toast.success("Hero data saved successfully!");
       } else {
-        alert("Failed to save hero data");
+        toast.error("Failed to save hero data");
       }
     } catch (error) {
       console.error("Failed to save hero data:", error);
-      alert("An error occurred while saving");
+      toast.error("An error occurred while saving");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Navigation form submission
+  const onSubmitNavigation = async (data: NavigationFormData) => {
+    setIsSaving(true);
+    try {
+      const response = await fetch("/api/navigation", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: navigationData.id,
+          ...data,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setNavigationData(result);
+        toast.success("Navigation data saved successfully!");
+      } else {
+        toast.error("Failed to save navigation data");
+      }
+    } catch (error) {
+      console.error("Failed to save navigation data:", error);
+      toast.error("An error occurred while saving");
     } finally {
       setIsSaving(false);
     }
@@ -651,8 +759,9 @@ export default function AdminPanel() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="hero">Hero Section</TabsTrigger>
+            <TabsTrigger value="navigation">Navigation</TabsTrigger>
             <TabsTrigger value="myself">About Myself</TabsTrigger>
             <TabsTrigger value="skills">Skills</TabsTrigger>
             <TabsTrigger value="expertise">Expertise</TabsTrigger>
@@ -864,6 +973,311 @@ export default function AdminPanel() {
                         <>
                           <Save className="w-4 h-4 mr-2" />
                           Save Hero Data
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Navigation Tab */}
+          <TabsContent value="navigation" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Navigation Settings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Form {...navigationForm}>
+                  <form
+                    onSubmit={navigationForm.handleSubmit(onSubmitNavigation)}
+                    className="space-y-6"
+                  >
+                    {/* Navigation Links */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label>Navigation Links</Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            appendNavigationLink({
+                              id: `nav-${Date.now()}`,
+                              label: "",
+                              href: "",
+                              order: navigationLinks.length,
+                              isActive: true,
+                            })
+                          }
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Navigation Link
+                        </Button>
+                      </div>
+
+                      {navigationLinks.map((field, index) => (
+                        <div
+                          key={field.id}
+                          className="grid grid-cols-12 gap-2 items-end"
+                        >
+                          <FormField
+                            control={navigationForm.control}
+                            name={`navigationLinks.${index}.label`}
+                            render={({ field: labelField }) => (
+                              <FormItem className="col-span-3">
+                                <FormLabel>Label</FormLabel>
+                                <FormControl>
+                                  <Input {...labelField} placeholder="Home" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={navigationForm.control}
+                            name={`navigationLinks.${index}.href`}
+                            render={({ field: hrefField }) => (
+                              <FormItem className="col-span-3">
+                                <FormLabel>Href</FormLabel>
+                                <FormControl>
+                                  <Input {...hrefField} placeholder="#home" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={navigationForm.control}
+                            name={`navigationLinks.${index}.order`}
+                            render={({ field: orderField }) => (
+                              <FormItem className="col-span-2">
+                                <FormLabel>Order</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...orderField}
+                                    type="number"
+                                    min="0"
+                                    value={orderField.value}
+                                    onChange={(e) =>
+                                      orderField.onChange(
+                                        parseInt(e.target.value) || 0
+                                      )
+                                    }
+                                    placeholder="0"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={navigationForm.control}
+                            name={`navigationLinks.${index}.isActive`}
+                            render={({ field: activeField }) => (
+                              <FormItem className="col-span-2 flex items-center space-x-2">
+                                <FormLabel>Active</FormLabel>
+                                <FormControl>
+                                  <input
+                                    type="checkbox"
+                                    checked={activeField.value}
+                                    onChange={(e) =>
+                                      activeField.onChange(e.target.checked)
+                                    }
+                                    className="h-4 w-4"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <div className="col-span-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => removeNavigationLink(index)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Social Links */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label>Social Links</Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            appendSocialLink({
+                              id: `social-${Date.now()}`,
+                              href: "",
+                              icon: "ExternalLink",
+                              label: "",
+                              order: socialLinks.length,
+                              isActive: true,
+                            })
+                          }
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Social Link
+                        </Button>
+                      </div>
+
+                      {socialLinks.map((field, index) => (
+                        <div
+                          key={field.id}
+                          className="grid grid-cols-12 gap-2 items-end"
+                        >
+                          <FormField
+                            control={navigationForm.control}
+                            name={`socialLinks.${index}.label`}
+                            render={({ field: labelField }) => (
+                              <FormItem className="col-span-2">
+                                <FormLabel>Label</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...labelField}
+                                    placeholder="Facebook"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={navigationForm.control}
+                            name={`socialLinks.${index}.href`}
+                            render={({ field: hrefField }) => (
+                              <FormItem className="col-span-3">
+                                <FormLabel>URL</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...hrefField}
+                                    placeholder="https://facebook.com/..."
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={navigationForm.control}
+                            name={`socialLinks.${index}.icon`}
+                            render={({ field: iconField }) => (
+                              <FormItem className="col-span-2">
+                                <FormLabel>Icon</FormLabel>
+                                <FormControl>
+                                  <Select
+                                    value={iconField.value}
+                                    onValueChange={iconField.onChange}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select icon" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="Facebook">
+                                        Facebook
+                                      </SelectItem>
+                                      <SelectItem value="Linkedin">
+                                        LinkedIn
+                                      </SelectItem>
+                                      <SelectItem value="Github">
+                                        GitHub
+                                      </SelectItem>
+                                      <SelectItem value="Twitter">
+                                        Twitter
+                                      </SelectItem>
+                                      <SelectItem value="Instagram">
+                                        Instagram
+                                      </SelectItem>
+                                      <SelectItem value="Youtube">
+                                        YouTube
+                                      </SelectItem>
+                                      <SelectItem value="ExternalLink">
+                                        External Link
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={navigationForm.control}
+                            name={`socialLinks.${index}.order`}
+                            render={({ field: orderField }) => (
+                              <FormItem className="col-span-2">
+                                <FormLabel>Order</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...orderField}
+                                    type="number"
+                                    min="0"
+                                    value={orderField.value}
+                                    onChange={(e) =>
+                                      orderField.onChange(
+                                        parseInt(e.target.value) || 0
+                                      )
+                                    }
+                                    placeholder="0"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={navigationForm.control}
+                            name={`socialLinks.${index}.isActive`}
+                            render={({ field: activeField }) => (
+                              <FormItem className="col-span-1 flex items-center space-x-2">
+                                <FormLabel>Active</FormLabel>
+                                <FormControl>
+                                  <input
+                                    type="checkbox"
+                                    checked={activeField.value}
+                                    onChange={(e) =>
+                                      activeField.onChange(e.target.checked)
+                                    }
+                                    className="h-4 w-4"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <div className="col-span-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => removeSocialLink(index)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <Button type="submit" disabled={isSaving}>
+                      {isSaving ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4 mr-2" />
+                          Save Navigation
                         </>
                       )}
                     </Button>

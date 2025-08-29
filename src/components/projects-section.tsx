@@ -52,7 +52,7 @@ export function ProjectsSection({
   if (loading) {
     return (
       <section className="projects-section" id="projects">
-        <div className="container">
+        <div className="container content-constrained">
           <div className="row justify-content-center">
             <div className="col-lg-8">
               <div className="section-title text-center">
@@ -77,7 +77,7 @@ export function ProjectsSection({
   if (error) {
     return (
       <section className="projects-section" id="projects">
-        <div className="container">
+        <div className="container content-constrained">
           <div className="text-center py-12">
             <p className="text-red-500">Error: {error}</p>
           </div>
@@ -88,7 +88,7 @@ export function ProjectsSection({
 
   return (
     <section className="projects-section" id="projects" data-aos="fade-up">
-      <div className="container">
+      <div className="container content-constrained">
         <div className="row justify-content-center">
           <div className="col-lg-8">
             <div className="section-title text-center">

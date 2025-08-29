@@ -4,6 +4,122 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Custom Container System - matching Bootstrap container behavior */
+.container-custom {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem; /* 16px */
+  padding-right: 1rem; /* 16px */
+}
+
+/* Responsive container max-widths matching Bootstrap */
+@media (min-width: 576px) {
+  .container-custom {
+    max-width: 540px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container-custom {
+    max-width: 720px;
+  }
+}
+
+@media (min-width: 992px) {
+  .container-custom {
+    max-width: 960px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .container-custom {
+    max-width: 1140px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .container-custom {
+    max-width: 1320px;
+  }
+}
+
+/* Section spacing similar to old website */
+.section-padding {
+  padding-top: 5rem; /* py-20 equivalent - 80px */
+  padding-bottom: 5rem;
+}
+
+@media (min-width: 1024px) {
+  .section-padding {
+    padding-top: 7rem; /* py-28 equivalent - 112px */
+    padding-bottom: 7rem;
+  }
+}
+
+/* Additional width constraints for better content flow */
+body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+main {
+  width: 100%;
+  max-width: 100vw;
+}
+
+/* Content width limiter */
+.content-constrained {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Bootstrap-like utilities for components still using them */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -0.75rem;
+  margin-right: -0.75rem;
+}
+
+.justify-content-center {
+  justify-content: center;
+}
+
+.col-lg-8 {
+  flex: 0 0 auto;
+  width: 100%;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+@media (min-width: 1024px) {
+  .col-lg-8 {
+    width: 66.666667%;
+  }
+}
+
+.section-title {
+  margin-bottom: 3rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .title {
+    font-size: 2.5rem;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

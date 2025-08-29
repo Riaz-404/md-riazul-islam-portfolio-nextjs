@@ -15,7 +15,7 @@ import { HeroData } from "@/types/hero";
 async function getHeroData(): Promise<HeroData> {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/hero`,
+      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000"}/api/hero`,
       {
         cache: "no-store",
       }
@@ -28,7 +28,6 @@ async function getHeroData(): Promise<HeroData> {
     return response.json();
   } catch (error) {
     console.error("Error fetching hero data:", error);
-    // Return default data as fallback
     const { defaultHeroData } = await import("@/types/hero");
     return { id: "hero-1", ...defaultHeroData };
   }
@@ -63,12 +62,12 @@ export async function HeroSection() {
       id="home"
       className="min-h-screen flex items-center py-20 lg:py-28"
     >
-      <div className="container mx-auto px-4">
+      <div className="container">
         <MotionDiv
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-center"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center max-w-6xl mx-auto"
         >
           {/* Profile Image */}
           <MotionDiv
@@ -122,19 +121,19 @@ export async function HeroSection() {
           {/* Content */}
           <MotionDiv
             variants={itemVariants}
-            className="order-2 lg:order-2 text-center lg:text-left space-y-6"
+            className="order-2 lg:order-2 text-left space-y-6"
           >
             {/* Name */}
             <MotionH2
               variants={itemVariants}
-              className="text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground"
+              className="text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground"
             >
               {heroData.name}
             </MotionH2>
 
             {/* Animated Role Text */}
             <MotionDiv variants={itemVariants} className="relative">
-              <MotionH1 className="text-xl lg:text-2xl xl:text-3xl font-normal">
+              <MotionH1 className="text-base lg:text-lg xl:text-xl font-normal">
                 <span className="text-primary mr-2">—</span>
                 <RotatingText rotatingTexts={heroData.rotatingTexts} />
               </MotionH1>
@@ -151,7 +150,7 @@ export async function HeroSection() {
             {/* Technology Icons */}
             <MotionDiv
               variants={itemVariants}
-              className="flex flex-wrap justify-center lg:justify-start gap-3 py-6"
+              className="flex flex-wrap justify-start gap-3 py-6"
             >
               {heroData.techIcons.map((tech, index) => (
                 <MotionDiv
@@ -173,7 +172,7 @@ export async function HeroSection() {
                     src={tech.src}
                     alt={tech.title}
                     title={tech.title}
-                    className="w-8 h-8 lg:w-10 lg:h-10 object-contain"
+                    className="w-6 h-6 lg:w-8 lg:h-8 object-contain"
                   />
                   {/* Tooltip */}
                   <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
