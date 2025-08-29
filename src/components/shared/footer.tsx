@@ -32,30 +32,36 @@ export async function Footer() {
   const socialLinks = await getSocialLinks();
 
   return (
-    <footer className="footer">
-      <div className="container">
-        <div className="row align-items-center text-center text-lg-left">
-          <div className="col-lg-4">
-            <ul className="list-inline footer-socials">
+    <footer className="bg-card border-t border-border py-20 lg:py-16 transition-colors">
+      <div className="container-custom">
+        <div className="flex flex-col lg:flex-row items-center justify-between text-center lg:text-left gap-8 lg:gap-4">
+          <div className="lg:flex-1">
+            <ul className="flex justify-center lg:justify-start items-center gap-4">
               {socialLinks.map((social) => (
-                <li key={social.id} className="list-inline-item mx-3">
-                  <SocialLinkButton link={social} />
+                <li key={social.id}>
+                  <SocialLinkButton
+                    link={social}
+                    className="border-muted-foreground/20 hover:border-primary hover:bg-primary/10 hover:text-primary transition-all duration-300 text-lg h-12 w-12"
+                  />
                 </li>
               ))}
             </ul>
           </div>
-          <div className="col-lg-4">
-            <div>
-              <p>
-                Designed by{" "}
-                <Link href="#top" className="smoth-scroll">
-                  <span>Md. Riazul Islam</span>
-                </Link>
-              </p>
-            </div>
+          <div className="lg:flex-1 lg:text-center">
+            <p className="text-muted-foreground">
+              Designed by{" "}
+              <Link
+                href="#top"
+                className="text-primary hover:text-accent transition-colors duration-300 font-medium"
+              >
+                Md. Riazul Islam
+              </Link>
+            </p>
           </div>
-          <div className="col-lg-4">
-            <p>&copy; {currentYear} All Rights Reserved.</p>
+          <div className="lg:flex-1 lg:text-right">
+            <p className="text-muted-foreground">
+              &copy; {currentYear} All Rights Reserved.
+            </p>
           </div>
         </div>
       </div>

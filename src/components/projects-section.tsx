@@ -20,26 +20,12 @@ export async function ProjectsSection({
 
   try {
     if (featured) {
-      // First try to get featured projects
       projects = await projectService.getFeaturedProjects();
-
-      // If we don't have enough featured projects, fallback to all projects
-      if (projects.length < limit && limit > 0) {
-        console.log(
-          `[ProjectsSection] Only ${projects.length} featured projects found, fetching all projects`
-        );
-        const allProjects = await projectService.getProjects();
-        projects = allProjects.slice(0, limit);
-      }
     } else {
       // Get all projects
       const allProjects = await projectService.getProjects();
       projects = limit && limit > 0 ? allProjects.slice(0, limit) : allProjects;
     }
-
-    console.log(
-      `[ProjectsSection] Fetched ${projects.length} projects (featured: ${featured}, limit: ${limit})`
-    );
   } catch (error) {
     console.error("Error fetching projects:", error);
     // Return error state but still show the section structure
