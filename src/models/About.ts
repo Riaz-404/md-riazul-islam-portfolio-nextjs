@@ -1,5 +1,4 @@
 import mongoose, { Schema, Document } from "mongoose";
-import { AboutData } from "@/types/about";
 
 // Define interfaces for MongoDB documents
 interface ISkillItem {

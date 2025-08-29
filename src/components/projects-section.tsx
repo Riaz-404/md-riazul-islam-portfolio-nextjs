@@ -114,7 +114,7 @@ export async function ProjectsSection({
         <div className="row align-items-center mt-5 hire" data-aos="fade-up">
           <div className="col-lg-6 mt-5">
             <h2 className="mb-5 text-lg-2 text-foreground">
-              Let's <span className="text-primary">work together</span> on your
+              Let&apos;s <span className="text-primary">work together</span> on your
               next project
             </h2>
           </div>

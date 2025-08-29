@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { mongoDBConnection } from "@/databases/db-connection";
 import Hero from "@/models/Hero";
 import { defaultHeroData } from "@/types/hero";

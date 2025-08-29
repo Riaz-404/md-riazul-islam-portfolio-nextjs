@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { initializeAboutData } from "@/lib/about-service";
 import { initializeExpertiseData } from "@/lib/expertise-service";
 

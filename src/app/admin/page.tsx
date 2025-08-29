@@ -35,7 +35,7 @@ function AdminPanel() {
   });
   const [projects, setProjects] = React.useState<ProjectData[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [isSaving, setIsSaving] = React.useState(false);
+  const [isSaving, ] = React.useState(false);
   const [isProjectsLoading, setIsProjectsLoading] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState("hero");
 

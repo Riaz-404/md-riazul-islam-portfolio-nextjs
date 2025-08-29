@@ -6,14 +6,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Save, RefreshCw, Edit, Eye } from "lucide-react";
+import { Plus, Trash2, Save, RefreshCw, Edit } from "lucide-react";
 import { toast } from "sonner";
 import { FileUpload } from "@/components/ui/file-upload";
 import { ProjectImageDisplay } from "@/components/ui/project-image";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import {
-  ProjectLoading,
-  ProjectLoadingCenter,
+  ProjectLoading
 } from "@/components/ui/project-loading";
 import { ProjectData, projectCategories, frameworks } from "@/types/project";
 import {
@@ -352,7 +351,7 @@ export function ProjectsSection({
           {!isProjectsLoading && projects.length === 0 && (
             <Card className="p-8 text-center">
               <p className="text-gray-500">
-                No projects found. Click "Add New Project" to create your first
+                No projects found. Click &quot;Add New Project&quot; to create your first
                 project.
               </p>
             </Card>

@@ -1,7 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
-import { ExpertiseData } from "@/types/expertise";
 
-// Define interfaces for MongoDB documents
 interface IExpertiseSkill {
   id: string;
   name: string;

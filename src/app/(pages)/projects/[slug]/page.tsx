@@ -10,9 +10,9 @@ import { ProjectService } from "@/lib/project-service";
 import { ArrowLeft } from "lucide-react";
 
 interface ProjectPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 const projectService = new ProjectService();
@@ -42,6 +42,7 @@ export async function generateMetadata({
   } catch (error) {
     return {
       title: "Project Not Found",
+      description: error instanceof Error ? error.message : String(error),
     };
   }
 }

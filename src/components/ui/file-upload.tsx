@@ -2,9 +2,9 @@
 
 import React, { useState, useRef } from "react";
 import { Button } from "./button";
-import { Input } from "./input";
 import { Label } from "./label";
 import { X, Upload, Image as ImageIcon } from "lucide-react";
+import Image from "next/image";
 
 interface FileUploadProps {
   label: string;
@@ -144,13 +144,15 @@ export function FileUpload({
                     <div className="relative">
                       <ImageIcon className="h-8 w-8 text-gray-400" />
                       {file.type.startsWith("image/") && (
-                        <img
+                        <Image
                           src={URL.createObjectURL(file)}
                           alt={file.name}
                           className="absolute inset-0 h-8 w-8 object-cover rounded"
-                          onLoad={() =>
-                            URL.revokeObjectURL(URL.createObjectURL(file))
-                          }
+                          onLoad={(e) => {
+                            URL.revokeObjectURL(
+                              (e.target as HTMLImageElement).src
+                            );
+                          }}
                         />
                       )}
                     </div>

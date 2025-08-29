@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { motion } from "motion/react";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -67,7 +67,7 @@ export function Navigation() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleNavigation = (href: string, external?: boolean) => {
+  const handleNavigation = (href: string) => {
     if (pathname !== "/") {
       router.push("/");
     }

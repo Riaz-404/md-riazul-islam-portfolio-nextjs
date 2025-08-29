@@ -181,7 +181,7 @@ export async function HeroSection() {
                   }}
                   className="relative group"
                 >
-                  <img
+                  <Image
                     src={tech.src}
                     alt={tech.title}
                     title={tech.title}

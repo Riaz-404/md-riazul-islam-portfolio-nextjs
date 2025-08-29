@@ -8,7 +8,6 @@ import {
   MotionH2,
   MotionP,
 } from "@/components/motion/motion-html-element";
-import { SocialLinkButton } from "@/components/shared/social-link-button";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -70,7 +69,6 @@ async function getSocialLinks(): Promise<SocialLink[]> {
 
 export async function AboutSection() {
   const aboutData = await getAboutData();
-  const socialLinks = await getSocialLinks();
 
   return (
     <section id="about" className="py-20 lg:py-28">
