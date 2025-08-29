@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ProjectImageDisplay } from "@/components/ui/project-image";
 import { ProjectData } from "@/types/project";
+import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
 
 interface ProjectsSectionProps {
@@ -26,17 +27,32 @@ export function ProjectsSection({
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      const endpoint = featured ? "/api/projects/featured" : "/api/projects";
-      const response = await fetch(endpoint);
-      const result = await response.json();
+      let endpoint = featured ? "/api/projects/featured" : "/api/projects";
+      let response = await fetch(endpoint);
+      let result = await response.json();
 
       if (result.success) {
         let projectsData = result.data;
+
+        // If we're looking for featured projects but don't have enough, fallback to all projects
+        if (featured && projectsData.length < limit && limit > 0) {
+          console.log(
+            `[ProjectsSection] Only ${projectsData.length} featured projects found, fetching all projects`
+          );
+          response = await fetch("/api/projects");
+          result = await response.json();
+          if (result.success) {
+            projectsData = result.data;
+          }
+        }
 
         if (limit && limit > 0) {
           projectsData = projectsData.slice(0, limit);
         }
 
+        console.log(
+          `[ProjectsSection] Fetched ${projectsData.length} projects (featured: ${featured}, limit: ${limit})`
+        );
         setProjects(projectsData);
       } else {
         setError(result.message || "Failed to fetch projects");
@@ -51,23 +67,19 @@ export function ProjectsSection({
 
   if (loading) {
     return (
-      <section className="projects-section" id="projects">
-        <div className="container content-constrained">
-          <div className="row justify-content-center">
-            <div className="col-lg-8">
-              <div className="section-title text-center">
-                <span className="mb-0 text-uppercase text-sm">
-                  <i className="ti-minus mr-2"></i>What I have done
-                </span>
-                <h2 className="title">Projects</h2>
-              </div>
-            </div>
+      <section
+        className="section-padding bg-background text-foreground"
+        id="projects"
+      >
+        <div className="container-custom content-constrained">
+          <div className="text-center mb-12">
+            <span className="mb-0 text-uppercase text-sm text-muted-foreground">
+              <i className="ti-minus mr-2"></i>What I have done
+            </span>
+            <h2 className="title text-foreground">Projects</h2>
           </div>
           <div className="flex justify-center items-center py-12">
-            <div
-              className="animate-spin rounded-full h-12 w-12 border-b-2"
-              style={{ borderColor: "#e1a34c" }}
-            ></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
         </div>
       </section>
@@ -76,10 +88,13 @@ export function ProjectsSection({
 
   if (error) {
     return (
-      <section className="projects-section" id="projects">
-        <div className="container content-constrained">
+      <section
+        className="section-padding bg-background text-foreground"
+        id="projects"
+      >
+        <div className="container-custom content-constrained">
           <div className="text-center py-12">
-            <p className="text-red-500">Error: {error}</p>
+            <p className="text-destructive">Error: {error}</p>
           </div>
         </div>
       </section>
@@ -87,53 +102,76 @@ export function ProjectsSection({
   }
 
   return (
-    <section className="projects-section" id="projects" data-aos="fade-up">
-      <div className="container content-constrained">
-        <div className="row justify-content-center">
-          <div className="col-lg-8">
-            <div className="section-title text-center">
-              <span className="mb-0 text-uppercase text-sm">
-                <i className="ti-minus mr-2"></i>What I have done
-              </span>
-              <h2 className="title">Projects</h2>
-            </div>
-          </div>
+    <section
+      className="section-padding bg-background text-foreground"
+      id="projects"
+      data-aos="fade-up"
+    >
+      <div className="container-custom content-constrained">
+        <div className="text-center mb-12">
+          <span className="mb-0 text-uppercase text-sm text-muted-foreground">
+            <i className="ti-minus mr-2"></i>What I have done
+          </span>
+          <h2 className="title text-foreground">Projects</h2>
         </div>
 
-        <div className="row">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {projects.map((project, index) => (
             <motion.div
               key={project._id}
-              className="col-lg-4 col-md-6"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
             >
-              <div className="project-card">
-                <Link href={`/projects/${project.slug}`}>
-                  <ProjectImageDisplay
-                    image={project.mainImage}
-                    alt={project.title}
-                    className="w-full"
-                  />
-                  <h3 className="my-4 text-capitalize">{project.title}</h3>
+              <div className="project-card bg-card text-card-foreground border border-border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 h-full">
+                <Link
+                  href={`/projects/${project.slug}`}
+                  className="block h-full"
+                >
+                  <div className="aspect-video overflow-hidden">
+                    <ProjectImageDisplay
+                      image={project.mainImage}
+                      alt={project.title}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                  </div>
+                  <div className="p-4">
+                    <h3 className="project-title text-xl font-semibold line-clamp-2">
+                      {project.title}
+                    </h3>
+                    {project.shortDescription && (
+                      <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                        {project.shortDescription}
+                      </p>
+                    )}
+                  </div>
                 </Link>
               </div>
             </motion.div>
           ))}
         </div>
 
+        {/* More Projects Button - Only show on home page with featured projects */}
+        {featured && (
+          <div className="text-center mt-2 mb-6">
+            <Button asChild variant="outline" size="lg">
+              <Link href="/projects">View More Projects</Link>
+            </Button>
+          </div>
+        )}
+
         {/* Work Together Section */}
         <div className="row align-items-center mt-5 hire" data-aos="fade-up">
           <div className="col-lg-6 mt-5">
-            <h2 className="mb-5 text-lg-2">
-              Let's <span>work together</span> on your next project
+            <h2 className="mb-5 text-lg-2 text-foreground">
+              Let's <span className="text-primary">work together</span> on your
+              next project
             </h2>
           </div>
           <div className="col-lg-4 ml-auto text-right">
-            <a href="#contact" className="btn btn-main smoth-scroll">
+            <Link href="#contact" className="btn btn-main smoth-scroll">
               Hire Me
-            </a>
+            </Link>
           </div>
         </div>
       </div>

@@ -666,6 +666,20 @@ export default function AdminPanel() {
       order: project.order,
     });
     setIsProjectFormOpen(true);
+
+    // Scroll to project form section after state updates
+    setTimeout(() => {
+      const projectFormElement = document.getElementById(
+        "project-form-section"
+      );
+      if (projectFormElement) {
+        projectFormElement.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+          inline: "nearest",
+        });
+      }
+    }, 100);
   };
 
   // Helper functions for about form
@@ -746,21 +760,65 @@ export default function AdminPanel() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold">Portfolio Admin Panel</h1>
-          <p className="text-muted-foreground">Manage your portfolio content</p>
+      <div className="container mx-auto p-4 sm:p-6">
+        <div className="mb-4 sm:mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold">
+            Portfolio Admin Panel
+          </h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
+            Manage your portfolio content
+          </p>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="hero">Hero Section</TabsTrigger>
-            <TabsTrigger value="navigation">Social Links</TabsTrigger>
-            <TabsTrigger value="myself">About Myself</TabsTrigger>
-            <TabsTrigger value="skills">Skills</TabsTrigger>
-            <TabsTrigger value="expertise">Expertise</TabsTrigger>
-            <TabsTrigger value="projects">Projects</TabsTrigger>
-          </TabsList>
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full flex flex-col"
+        >
+          <div className="mb-6">
+            <TabsList className="w-full h-auto flex flex-wrap justify-center sm:justify-start gap-1 p-1">
+              <TabsTrigger
+                value="hero"
+                className="text-xs sm:text-sm flex-shrink-0"
+              >
+                <span className="hidden sm:inline">Hero Section</span>
+                <span className="sm:hidden">Hero</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="navigation"
+                className="text-xs sm:text-sm flex-shrink-0"
+              >
+                <span className="hidden sm:inline">Social Links</span>
+                <span className="sm:hidden">Social</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="myself"
+                className="text-xs sm:text-sm flex-shrink-0"
+              >
+                <span className="hidden sm:inline">About Myself</span>
+                <span className="sm:hidden">About</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="skills"
+                className="text-xs sm:text-sm flex-shrink-0"
+              >
+                Skills
+              </TabsTrigger>
+              <TabsTrigger
+                value="expertise"
+                className="text-xs sm:text-sm flex-shrink-0"
+              >
+                <span className="hidden sm:inline">Expertise</span>
+                <span className="sm:hidden">Expert</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="projects"
+                className="text-xs sm:text-sm flex-shrink-0"
+              >
+                Projects
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Hero Section Tab */}
           <TabsContent value="hero" className="space-y-4">
@@ -1712,26 +1770,43 @@ export default function AdminPanel() {
 
           {/* Projects Tab */}
           <TabsContent value="projects" className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Project Management</h2>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+              <h2 className="text-xl sm:text-2xl font-bold">
+                Project Management
+              </h2>
               <Button
                 onClick={() => {
                   resetProjectForm();
                   setIsProjectFormOpen(true);
+                  // Scroll to project form section after state updates
+                  setTimeout(() => {
+                    const projectFormElement = document.getElementById(
+                      "project-form-section"
+                    );
+                    if (projectFormElement) {
+                      projectFormElement.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start",
+                        inline: "nearest",
+                      });
+                    }
+                  }, 100);
                 }}
+                className="w-full sm:w-auto"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add New Project
+                <span className="hidden sm:inline">Add New Project</span>
+                <span className="sm:hidden">Add Project</span>
               </Button>
             </div>
 
             {/* Projects List */}
             <div className="grid gap-4">
               {projects.map((project) => (
-                <Card key={project._id} className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden">
+                <Card key={project._id} className="p-3 sm:p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
                         <ProjectImageDisplay
                           image={project.mainImage}
                           alt={project.title}
@@ -1740,14 +1815,14 @@ export default function AdminPanel() {
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-lg">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-base sm:text-lg truncate">
                           {project.title}
                         </h3>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-600 truncate">
                           {project.category} • {project.framework}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 truncate sm:block">
                           {project.shortDescription}
                         </p>
                         {project.featured && (
@@ -1757,20 +1832,24 @@ export default function AdminPanel() {
                         )}
                       </div>
                     </div>
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-2 sm:flex-shrink-0">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => editProject(project)}
+                        className="flex-1 sm:flex-none"
                       >
-                        <Edit className="h-4 w-4" />
+                        <Edit className="h-4 w-4 sm:mr-0" />
+                        <span className="ml-2 sm:hidden">Edit</span>
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => deleteProject(project._id!)}
+                        className="flex-1 sm:flex-none"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4 sm:mr-0" />
+                        <span className="ml-2 sm:hidden">Delete</span>
                       </Button>
                     </div>
                   </div>
@@ -1789,7 +1868,7 @@ export default function AdminPanel() {
 
             {/* Project Form Modal/Sheet */}
             {isProjectFormOpen && (
-              <Card className="mt-6">
+              <Card className="mt-6" id="project-form-section">
                 <CardHeader>
                   <div className="flex justify-between items-center">
                     <CardTitle>
