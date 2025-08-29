@@ -5,7 +5,7 @@ import { defaultHeroData } from "@/types/hero";
 
 export async function POST() {
   try {
-    console.log("Connecting to database...");
+    // Connecting to database...
     await mongoDBConnection();
 
     // Check if hero data already exists
@@ -19,7 +19,7 @@ export async function POST() {
       });
     }
 
-    console.log("Creating initial hero data...");
+    // Creating initial hero data...
 
     const heroData = new Hero({
       id: "hero-1",

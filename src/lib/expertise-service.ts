@@ -139,11 +139,11 @@ export async function initializeExpertiseData() {
       const expertiseDocument = new Expertise(defaultExpertiseData);
 
       await expertiseDocument.save();
-      console.log("✅ Initialized expertise data with default values");
+      // Initialized expertise data with default values
       return expertiseDocument;
     }
 
-    console.log("ℹ️ Expertise data already exists");
+    // Expertise data already exists
     return existingData;
   } catch (error) {
     console.error("❌ Failed to initialize expertise data:", error);

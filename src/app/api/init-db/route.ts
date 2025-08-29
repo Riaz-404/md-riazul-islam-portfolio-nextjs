@@ -4,12 +4,12 @@ import { initializeExpertiseData } from "@/lib/expertise-service";
 
 export async function POST() {
   try {
-    console.log("🚀 Starting database initialization...");
+    // Starting database initialization...
 
     await initializeAboutData();
     await initializeExpertiseData();
 
-    console.log("✅ Database initialization completed successfully!");
+    // Database initialization completed successfully!
 
     return NextResponse.json({
       success: true,

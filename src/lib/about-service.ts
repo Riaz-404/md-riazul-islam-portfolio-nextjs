@@ -19,11 +19,11 @@ export async function initializeAboutData() {
       });
 
       await aboutDocument.save();
-      console.log("✅ Initialized about data with default values");
+      // Initialized about data with default values
       return aboutDocument;
     }
 
-    console.log("ℹ️ About data already exists");
+    // About data already exists
     return existingData;
   } catch (error) {
     console.error("❌ Failed to initialize about data:", error);

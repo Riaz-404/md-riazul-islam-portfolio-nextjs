@@ -7,11 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:init": "node scripts/init-db.mjs",
-    "db:init-api": "curl -X POST http://localhost:5000/api/init-db",
-    "db:add-projects": "node scripts/add-projects.mjs",
-    "admin:create": "node scripts/create-admin.mjs",
-    "admin:create-standalone": "node scripts/create-admin-standalone.mjs"
+    "db:init": "node scripts/init-db.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
