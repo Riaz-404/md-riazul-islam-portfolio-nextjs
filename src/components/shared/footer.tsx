@@ -1,7 +1,35 @@
 import Link from "next/link";
+import { SocialLink, defaultNavigationData } from "@/types/navigation";
+import { NavigationService } from "@/lib/navigation-service";
+import { SocialLinkButton } from "./social-link-button";
 
-export function Footer() {
+async function getSocialLinks(): Promise<SocialLink[]> {
+  try {
+    const navigation = await NavigationService.getNavigation();
+    const links =
+      navigation?.socialLinks?.filter((link: SocialLink) => link.isActive) ||
+      defaultNavigationData.socialLinks;
+
+    // Ensure plain objects
+    return links.map((link) => ({
+      id: link.id,
+      href: link.href,
+      icon: link.icon,
+      label: link.label,
+      order: link.order,
+      isActive: link.isActive,
+      iconType: link.iconType || "lucide",
+      imageUrl: link.imageUrl || "",
+    }));
+  } catch (error) {
+    console.error("Error fetching social links:", error);
+    return defaultNavigationData.socialLinks.filter((link) => link.isActive);
+  }
+}
+
+export async function Footer() {
   const currentYear = new Date().getFullYear();
+  const socialLinks = await getSocialLinks();
 
   return (
     <footer className="footer">
@@ -9,56 +37,11 @@ export function Footer() {
         <div className="row align-items-center text-center text-lg-left">
           <div className="col-lg-4">
             <ul className="list-inline footer-socials">
-              <li className="list-inline-item">
-                <a
-                  href="https://www.facebook.com/imriaz.cu/"
-                  aria-label="Facebook"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <i className="fa-brands fa-facebook-f"></i>
-                </a>
-              </li>
-              <li className="list-inline-item">
-                <a
-                  href="https://twitter.com/?lang=en"
-                  aria-label="Twitter"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <i className="fa-brands fa-twitter"></i>
-                </a>
-              </li>
-              <li className="list-inline-item">
-                <a
-                  href="https://www.instagram.com/i_m_riaz_/"
-                  aria-label="Instagram"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <i className="fa-brands fa-instagram"></i>
-                </a>
-              </li>
-              <li className="list-inline-item">
-                <a
-                  href="https://www.linkedin.com/in/md-riazul-islam-891b65194/"
-                  aria-label="LinkedIn"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <i className="fa-brands fa-linkedin"></i>
-                </a>
-              </li>
-              <li className="list-inline-item">
-                <a
-                  href="https://github.com/Riaz-404"
-                  aria-label="Github"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <i className="fa-brands fa-github"></i>
-                </a>
-              </li>
+              {socialLinks.map((social) => (
+                <li key={social.id} className="list-inline-item">
+                  <SocialLinkButton link={social} />
+                </li>
+              ))}
             </ul>
           </div>
           <div className="col-lg-4">

@@ -132,22 +132,14 @@ const heroSchema = z.object({
   ),
 });
 
-// Navigation schema
+// Navigation schema (only social links)
 const navigationSchema = z.object({
-  navigationLinks: z.array(
-    z.object({
-      id: z.string(),
-      label: z.string().min(1, "Label is required"),
-      href: z.string().min(1, "Href is required"),
-      order: z.number().min(0, "Order must be non-negative"),
-      isActive: z.boolean(),
-    })
-  ),
   socialLinks: z.array(
     z.object({
       id: z.string(),
       href: z.string().url("Must be a valid URL"),
       icon: z.string().min(1, "Icon is required"),
+      iconType: z.enum(["lucide", "image"]),
       label: z.string().min(1, "Label is required"),
       order: z.number().min(0, "Order must be non-negative"),
       isActive: z.boolean(),
@@ -248,7 +240,6 @@ export default function AdminPanel() {
   const navigationForm = useForm<NavigationFormData>({
     resolver: zodResolver(navigationSchema),
     defaultValues: {
-      navigationLinks: navigationData.navigationLinks,
       socialLinks: navigationData.socialLinks,
     },
   });
@@ -292,16 +283,7 @@ export default function AdminPanel() {
     name: "techIcons",
   });
 
-  // Navigation form arrays
-  const {
-    fields: navigationLinks,
-    append: appendNavigationLink,
-    remove: removeNavigationLink,
-  } = useFieldArray({
-    control: navigationForm.control,
-    name: "navigationLinks",
-  });
-
+  // Navigation form arrays (only social links)
   const {
     fields: socialLinks,
     append: appendSocialLink,
@@ -400,10 +382,22 @@ export default function AdminPanel() {
       const response = await fetch("/api/navigation");
       if (response.ok) {
         const data = await response.json();
-        setNavigationData(data);
+
+        // Ensure iconType is set for backward compatibility
+        const socialLinksWithIconType =
+          data.socialLinks?.map((link: any) => ({
+            ...link,
+            iconType: link.iconType || "lucide",
+          })) || [];
+
+        const dataWithIconType = {
+          ...data,
+          socialLinks: socialLinksWithIconType,
+        };
+
+        setNavigationData(dataWithIconType);
         navigationForm.reset({
-          navigationLinks: data.navigationLinks,
-          socialLinks: data.socialLinks,
+          socialLinks: socialLinksWithIconType,
         });
       }
     } catch (error) {
@@ -761,7 +755,7 @@ export default function AdminPanel() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="hero">Hero Section</TabsTrigger>
-            <TabsTrigger value="navigation">Navigation</TabsTrigger>
+            <TabsTrigger value="navigation">Social Links</TabsTrigger>
             <TabsTrigger value="myself">About Myself</TabsTrigger>
             <TabsTrigger value="skills">Skills</TabsTrigger>
             <TabsTrigger value="expertise">Expertise</TabsTrigger>
@@ -986,7 +980,7 @@ export default function AdminPanel() {
           <TabsContent value="navigation" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Navigation Settings</CardTitle>
+                <CardTitle>Social Links Settings</CardTitle>
               </CardHeader>
               <CardContent>
                 <Form {...navigationForm}>
@@ -994,118 +988,6 @@ export default function AdminPanel() {
                     onSubmit={navigationForm.handleSubmit(onSubmitNavigation)}
                     className="space-y-6"
                   >
-                    {/* Navigation Links */}
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <Label>Navigation Links</Label>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            appendNavigationLink({
-                              id: `nav-${Date.now()}`,
-                              label: "",
-                              href: "",
-                              order: navigationLinks.length,
-                              isActive: true,
-                            })
-                          }
-                        >
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add Navigation Link
-                        </Button>
-                      </div>
-
-                      {navigationLinks.map((field, index) => (
-                        <div
-                          key={field.id}
-                          className="grid grid-cols-12 gap-2 items-end"
-                        >
-                          <FormField
-                            control={navigationForm.control}
-                            name={`navigationLinks.${index}.label`}
-                            render={({ field: labelField }) => (
-                              <FormItem className="col-span-3">
-                                <FormLabel>Label</FormLabel>
-                                <FormControl>
-                                  <Input {...labelField} placeholder="Home" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={navigationForm.control}
-                            name={`navigationLinks.${index}.href`}
-                            render={({ field: hrefField }) => (
-                              <FormItem className="col-span-3">
-                                <FormLabel>Href</FormLabel>
-                                <FormControl>
-                                  <Input {...hrefField} placeholder="#home" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={navigationForm.control}
-                            name={`navigationLinks.${index}.order`}
-                            render={({ field: orderField }) => (
-                              <FormItem className="col-span-2">
-                                <FormLabel>Order</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    {...orderField}
-                                    type="number"
-                                    min="0"
-                                    value={orderField.value}
-                                    onChange={(e) =>
-                                      orderField.onChange(
-                                        parseInt(e.target.value) || 0
-                                      )
-                                    }
-                                    placeholder="0"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={navigationForm.control}
-                            name={`navigationLinks.${index}.isActive`}
-                            render={({ field: activeField }) => (
-                              <FormItem className="col-span-2 flex items-center space-x-2">
-                                <FormLabel>Active</FormLabel>
-                                <FormControl>
-                                  <input
-                                    type="checkbox"
-                                    checked={activeField.value}
-                                    onChange={(e) =>
-                                      activeField.onChange(e.target.checked)
-                                    }
-                                    className="h-4 w-4"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <div className="col-span-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => removeNavigationLink(index)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
                     {/* Social Links */}
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
@@ -1119,6 +1001,7 @@ export default function AdminPanel() {
                               id: `social-${Date.now()}`,
                               href: "",
                               icon: "ExternalLink",
+                              iconType: "lucide",
                               label: "",
                               order: socialLinks.length,
                               isActive: true,
@@ -1133,136 +1016,184 @@ export default function AdminPanel() {
                       {socialLinks.map((field, index) => (
                         <div
                           key={field.id}
-                          className="grid grid-cols-12 gap-2 items-end"
+                          className="border rounded-lg p-4 space-y-4"
                         >
-                          <FormField
-                            control={navigationForm.control}
-                            name={`socialLinks.${index}.label`}
-                            render={({ field: labelField }) => (
-                              <FormItem className="col-span-2">
-                                <FormLabel>Label</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    {...labelField}
-                                    placeholder="Facebook"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={navigationForm.control}
-                            name={`socialLinks.${index}.href`}
-                            render={({ field: hrefField }) => (
-                              <FormItem className="col-span-3">
-                                <FormLabel>URL</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    {...hrefField}
-                                    placeholder="https://facebook.com/..."
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={navigationForm.control}
-                            name={`socialLinks.${index}.icon`}
-                            render={({ field: iconField }) => (
-                              <FormItem className="col-span-2">
-                                <FormLabel>Icon</FormLabel>
-                                <FormControl>
-                                  <Select
-                                    value={iconField.value}
-                                    onValueChange={iconField.onChange}
-                                  >
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select icon" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="Facebook">
-                                        Facebook
-                                      </SelectItem>
-                                      <SelectItem value="Linkedin">
-                                        LinkedIn
-                                      </SelectItem>
-                                      <SelectItem value="Github">
-                                        GitHub
-                                      </SelectItem>
-                                      <SelectItem value="Twitter">
-                                        Twitter
-                                      </SelectItem>
-                                      <SelectItem value="Instagram">
-                                        Instagram
-                                      </SelectItem>
-                                      <SelectItem value="Youtube">
-                                        YouTube
-                                      </SelectItem>
-                                      <SelectItem value="ExternalLink">
-                                        External Link
-                                      </SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={navigationForm.control}
-                            name={`socialLinks.${index}.order`}
-                            render={({ field: orderField }) => (
-                              <FormItem className="col-span-2">
-                                <FormLabel>Order</FormLabel>
-                                <FormControl>
-                                  <Input
-                                    {...orderField}
-                                    type="number"
-                                    min="0"
-                                    value={orderField.value}
-                                    onChange={(e) =>
-                                      orderField.onChange(
-                                        parseInt(e.target.value) || 0
-                                      )
-                                    }
-                                    placeholder="0"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={navigationForm.control}
-                            name={`socialLinks.${index}.isActive`}
-                            render={({ field: activeField }) => (
-                              <FormItem className="col-span-1 flex items-center space-x-2">
-                                <FormLabel>Active</FormLabel>
-                                <FormControl>
-                                  <input
-                                    type="checkbox"
-                                    checked={activeField.value}
-                                    onChange={(e) =>
-                                      activeField.onChange(e.target.checked)
-                                    }
-                                    className="h-4 w-4"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <div className="col-span-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => removeSocialLink(index)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                          <div className="grid grid-cols-12 gap-4 items-end">
+                            <FormField
+                              control={navigationForm.control}
+                              name={`socialLinks.${index}.label`}
+                              render={({ field: labelField }) => (
+                                <FormItem className="col-span-3">
+                                  <FormLabel>Label</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...labelField}
+                                      placeholder="Facebook"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={navigationForm.control}
+                              name={`socialLinks.${index}.href`}
+                              render={({ field: hrefField }) => (
+                                <FormItem className="col-span-4">
+                                  <FormLabel>URL</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...hrefField}
+                                      placeholder="https://facebook.com/..."
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={navigationForm.control}
+                              name={`socialLinks.${index}.iconType`}
+                              render={({ field: iconTypeField }) => (
+                                <FormItem className="col-span-2">
+                                  <FormLabel>Icon Type</FormLabel>
+                                  <FormControl>
+                                    <Select
+                                      value={iconTypeField.value}
+                                      onValueChange={iconTypeField.onChange}
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Type" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="lucide">
+                                          Lucide Icon
+                                        </SelectItem>
+                                        <SelectItem value="image">
+                                          External Image
+                                        </SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={navigationForm.control}
+                              name={`socialLinks.${index}.order`}
+                              render={({ field: orderField }) => (
+                                <FormItem className="col-span-2">
+                                  <FormLabel>Order</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...orderField}
+                                      type="number"
+                                      min="0"
+                                      value={orderField.value}
+                                      onChange={(e) =>
+                                        orderField.onChange(
+                                          parseInt(e.target.value) || 0
+                                        )
+                                      }
+                                      placeholder="0"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <div className="col-span-1">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => removeSocialLink(index)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-12 gap-4">
+                            <FormField
+                              control={navigationForm.control}
+                              name={`socialLinks.${index}.icon`}
+                              render={({ field: iconField }) => (
+                                <FormItem className="col-span-4">
+                                  <FormLabel>
+                                    {navigationForm.watch(
+                                      `socialLinks.${index}.iconType`
+                                    ) === "image"
+                                      ? "Image URL"
+                                      : "Lucide Icon"}
+                                  </FormLabel>
+                                  <FormControl>
+                                    {navigationForm.watch(
+                                      `socialLinks.${index}.iconType`
+                                    ) === "image" ? (
+                                      <Input
+                                        {...iconField}
+                                        placeholder="https://example.com/icon.svg"
+                                      />
+                                    ) : (
+                                      <Select
+                                        value={iconField.value}
+                                        onValueChange={iconField.onChange}
+                                      >
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select icon" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="Facebook">
+                                            Facebook
+                                          </SelectItem>
+                                          <SelectItem value="Linkedin">
+                                            LinkedIn
+                                          </SelectItem>
+                                          <SelectItem value="Github">
+                                            GitHub
+                                          </SelectItem>
+                                          <SelectItem value="Twitter">
+                                            Twitter
+                                          </SelectItem>
+                                          <SelectItem value="Instagram">
+                                            Instagram
+                                          </SelectItem>
+                                          <SelectItem value="Youtube">
+                                            YouTube
+                                          </SelectItem>
+                                          <SelectItem value="ExternalLink">
+                                            External Link
+                                          </SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    )}
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={navigationForm.control}
+                              name={`socialLinks.${index}.isActive`}
+                              render={({ field: activeField }) => (
+                                <FormItem className="col-span-2 flex items-center space-x-2 pt-6">
+                                  <FormLabel>Active</FormLabel>
+                                  <FormControl>
+                                    <input
+                                      type="checkbox"
+                                      checked={activeField.value}
+                                      onChange={(e) =>
+                                        activeField.onChange(e.target.checked)
+                                      }
+                                      className="h-4 w-4"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
                           </div>
                         </div>
                       ))}

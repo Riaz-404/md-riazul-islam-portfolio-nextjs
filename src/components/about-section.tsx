@@ -1,12 +1,14 @@
 import * as React from "react";
 import { Check } from "lucide-react";
 import { AboutData, defaultAboutData } from "@/types/about";
+import { SocialLink, defaultNavigationData } from "@/types/navigation";
 import { getAboutData as getAboutDataFromDB } from "@/lib/about-service";
 import {
   MotionDiv,
   MotionH2,
   MotionP,
 } from "@/components/motion/motion-html-element";
+import { SocialLinkButton } from "@/components/shared/social-link-button";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -41,8 +43,34 @@ async function getAboutData(): Promise<AboutData> {
   }
 }
 
+async function getSocialLinks(): Promise<SocialLink[]> {
+  try {
+    const { NavigationService } = await import("@/lib/navigation-service");
+    const navigation = await NavigationService.getNavigation();
+    const links =
+      navigation?.socialLinks?.filter((link: SocialLink) => link.isActive) ||
+      defaultNavigationData.socialLinks;
+
+    // Ensure plain objects with all required fields
+    return links.map((link) => ({
+      id: link.id,
+      href: link.href,
+      icon: link.icon,
+      iconType: link.iconType || "lucide",
+      imageUrl: link.imageUrl || "",
+      label: link.label,
+      order: link.order,
+      isActive: link.isActive,
+    }));
+  } catch (error) {
+    console.error("Error fetching social links:", error);
+    return defaultNavigationData.socialLinks.filter((link) => link.isActive);
+  }
+}
+
 export async function AboutSection() {
   const aboutData = await getAboutData();
+  const socialLinks = await getSocialLinks();
 
   return (
     <section id="about" className="py-20 lg:py-28">

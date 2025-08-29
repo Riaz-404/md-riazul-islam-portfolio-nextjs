@@ -19,8 +19,14 @@ export class NavigationService {
 
       return {
         id: navigationData.id,
-        navigationLinks: navigationData.navigationLinks,
-        socialLinks: navigationData.socialLinks,
+        socialLinks: navigationData.socialLinks.map((link: any) => ({
+          id: link.id,
+          href: link.href,
+          icon: link.icon,
+          label: link.label,
+          order: link.order,
+          isActive: link.isActive,
+        })),
         createdAt: navigationData.createdAt,
         updatedAt: navigationData.updatedAt,
       };
@@ -44,8 +50,14 @@ export class NavigationService {
 
       return {
         id: newNavigation.id,
-        navigationLinks: newNavigation.navigationLinks,
-        socialLinks: newNavigation.socialLinks,
+        socialLinks: newNavigation.socialLinks.map((link: any) => ({
+          id: link.id,
+          href: link.href,
+          icon: link.icon,
+          label: link.label,
+          order: link.order,
+          isActive: link.isActive,
+        })),
         createdAt: newNavigation.createdAt,
         updatedAt: newNavigation.updatedAt,
       };
@@ -73,8 +85,14 @@ export class NavigationService {
 
       return {
         id: updatedNavigation.id,
-        navigationLinks: updatedNavigation.navigationLinks,
-        socialLinks: updatedNavigation.socialLinks,
+        socialLinks: updatedNavigation.socialLinks.map((link: any) => ({
+          id: link.id,
+          href: link.href,
+          icon: link.icon,
+          label: link.label,
+          order: link.order,
+          isActive: link.isActive,
+        })),
         createdAt: updatedNavigation.createdAt,
         updatedAt: updatedNavigation.updatedAt,
       };

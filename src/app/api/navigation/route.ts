@@ -7,7 +7,7 @@ export async function GET() {
     const navigation = await NavigationService.getNavigation();
 
     if (!navigation) {
-      // Return default navigation if none exists
+      // Return default social links if none exists
       return NextResponse.json({
         id: "navigation-default",
         ...defaultNavigationData,
