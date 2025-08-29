@@ -17,7 +17,7 @@ export interface HeroData {
   name: string;
   rotatingTexts: RotatingText[];
   description: string;
-  profileImage: string;
+  profileImage?: string;
   cvDownloadUrl: string;
   techIcons: TechIcon[];
   createdAt?: Date;

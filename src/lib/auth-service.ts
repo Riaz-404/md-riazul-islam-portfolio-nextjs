@@ -3,8 +3,9 @@ import { SignJWT, jwtVerify } from "jose";
 import Admin from "@/models/Admin";
 import { mongoDBConnection } from "@/databases/db-connection";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "your-secret-key-change-this-in-production"
+const NEXT_PUBLIC_JWT_SECRET = new TextEncoder().encode(
+  process.env.NEXT_PUBLIC_JWT_SECRET ||
+    "your-secret-key-change-this-in-production"
 );
 
 export class AuthService {
@@ -25,7 +26,7 @@ export class AuthService {
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
       .setExpirationTime("24h")
-      .sign(JWT_SECRET);
+      .sign(NEXT_PUBLIC_JWT_SECRET);
 
     return token;
   }
@@ -34,7 +35,7 @@ export class AuthService {
     token: string
   ): Promise<{ email: string; isAdmin: boolean } | null> {
     try {
-      const { payload } = await jwtVerify(token, JWT_SECRET);
+      const { payload } = await jwtVerify(token, NEXT_PUBLIC_JWT_SECRET);
       return {
         email: payload.email as string,
         isAdmin: payload.isAdmin as boolean,

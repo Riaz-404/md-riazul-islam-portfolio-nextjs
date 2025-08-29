@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
 
-const DATABASE_URL = process.env.DATABASE_URL;
+const NEXT_PUBLIC_DATABASE_URL = process.env.NEXT_PUBLIC_DATABASE_URL;
 const cached = {};
 async function mongoDBConnection() {
-  if (!DATABASE_URL) {
+  if (!NEXT_PUBLIC_DATABASE_URL) {
     throw new Error(
-      "Please define the DATABASE_URL environment variable inside .env"
+      "Please define the NEXT_PUBLIC_DATABASE_URL environment variable inside .env"
     );
   }
   if (cached.connection) {
@@ -16,7 +16,7 @@ async function mongoDBConnection() {
       bufferCommands: false,
     };
     // Connection:
-    cached.promise = mongoose.connect(DATABASE_URL, opts);
+    cached.promise = mongoose.connect(NEXT_PUBLIC_DATABASE_URL, opts);
   }
   try {
     cached.connection = await cached.promise;

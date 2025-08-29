@@ -27,7 +27,8 @@ async function getHeroData(): Promise<HeroData> {
       id: heroData.id,
       name: heroData.name,
       description: heroData.description,
-      profileImage: heroData.profileImage,
+      profileImage:
+        heroData.profileImage || "/images/home/IMG_20211125_201810.jpg",
       cvDownloadUrl: heroData.cvDownloadUrl,
       rotatingTexts: heroData.rotatingTexts.map((text: any) => ({
         id: text.id,
@@ -94,7 +95,10 @@ export async function HeroSection() {
                 transition={{ duration: 0.3 }}
               >
                 <Image
-                  src={heroData.profileImage}
+                  src={
+                    heroData.profileImage ||
+                    "/images/home/IMG_20211125_201810.jpg"
+                  }
                   alt={heroData.name}
                   width={400}
                   height={400}

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Plus, Trash2, Save, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { DraggableList } from "@/components/ui/draggable-list";
+import { ImageUpload } from "@/components/ui/image-upload";
 import { HeroData } from "@/types/hero";
 import {
   Form,
@@ -40,7 +41,7 @@ export function HeroSection({
       name: heroData.name,
       rotatingTexts: heroData.rotatingTexts,
       description: heroData.description,
-      profileImage: heroData.profileImage,
+      profileImage: heroData.profileImage || "",
       cvDownloadUrl: heroData.cvDownloadUrl,
       techIcons: heroData.techIcons,
     },
@@ -71,7 +72,7 @@ export function HeroSection({
       name: heroData.name,
       rotatingTexts: heroData.rotatingTexts,
       description: heroData.description,
-      profileImage: heroData.profileImage,
+      profileImage: heroData.profileImage || "",
       cvDownloadUrl: heroData.cvDownloadUrl,
       techIcons: heroData.techIcons,
     });
@@ -161,10 +162,14 @@ export function HeroSection({
               name="profileImage"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Profile Image URL</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Enter profile image URL" />
-                  </FormControl>
+                  <ImageUpload
+                    label="Profile Image"
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    folder="hero"
+                    description="This image will be used for favicon and social media sharing"
+                    required
+                  />
                   <FormMessage />
                 </FormItem>
               )}

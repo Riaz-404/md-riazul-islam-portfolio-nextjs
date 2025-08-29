@@ -5,6 +5,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { ScrollToTop } from "@/components/shared/scroll-to-top";
 import { Toaster } from "sonner";
+import { generateMetadata as generateDynamicMetadata } from "@/lib/metadata-service";
 
 const workSans = Work_Sans({
   variable: "--font-work-sans",
@@ -24,27 +25,9 @@ const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700"],
 });
 
-export const metadata: Metadata = {
-  title: "Md. Riazul Islam - Software Engineer",
-  description:
-    "Passionate Software Engineer specializing in MERN stack, creating modern websites and web applications. Explore my projects and expertise in programming, problem solving, and web development.",
-  keywords:
-    "Software Engineer, Full Stack Software Engineer, MERN Stack, Web Developer, React, Node.js, JavaScript, Python, MongoDB, Portfolio",
-  authors: [{ name: "Md. Riazul Islam" }],
-  openGraph: {
-    title: "Md. Riazul Islam - Software Engineer",
-    description:
-      "Passionate Software Engineer specializing in MERN stack development",
-    type: "website",
-    locale: "en_US",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Md. Riazul Islam - Software Engineer",
-    description:
-      "Passionate Software Engineer specializing in MERN stack development",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return await generateDynamicMetadata();
+}
 
 export default function RootLayout({
   children,

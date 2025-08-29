@@ -17,7 +17,7 @@ interface IHero extends Document {
   name: string;
   rotatingTexts: IRotatingText[];
   description: string;
-  profileImage: string;
+  profileImage?: string;
   cvDownloadUrl: string;
   techIcons: ITechIcon[];
   createdAt: Date;
@@ -44,7 +44,7 @@ const HeroSchema = new Schema<IHero>(
     name: { type: String, required: true },
     rotatingTexts: [RotatingTextSchema],
     description: { type: String, required: true },
-    profileImage: { type: String, required: true },
+    profileImage: { type: String, required: false },
     cvDownloadUrl: { type: String, required: true },
     techIcons: [TechIconSchema],
   },

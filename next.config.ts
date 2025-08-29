@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
       {
-        protocol: "https", 
+        protocol: "https",
         hostname: "cdn.jsdelivr.net",
         port: "",
         pathname: "/npm/simple-icons@*/**",
@@ -33,6 +33,12 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "raw.githubusercontent.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
         port: "",
         pathname: "/**",
       },

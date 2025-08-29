@@ -79,7 +79,7 @@ export const heroSchema = z.object({
     )
     .min(1, "At least one rotating text is required"),
   description: z.string().min(1, "Description is required"),
-  profileImage: z.string().min(1, "Profile image is required"),
+  profileImage: z.string().optional(),
   cvDownloadUrl: z.string().min(1, "CV download URL is required"),
   techIcons: z.array(
     z.object({
