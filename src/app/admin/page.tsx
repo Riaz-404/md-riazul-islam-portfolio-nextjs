@@ -14,6 +14,11 @@ import { FileUpload } from "@/components/ui/file-upload";
 import { ProjectImageDisplay } from "@/components/ui/project-image";
 import { Plus, Trash2, Save, RefreshCw, Edit, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { DraggableList } from "@/components/ui/draggable-list";
+import {
+  ProjectLoading,
+  ProjectLoadingCenter,
+} from "@/components/ui/project-loading";
 import { AboutData, defaultAboutData } from "@/types/about";
 import { ExpertiseData } from "@/types/expertise";
 import { HeroData, defaultHeroData } from "@/types/hero";
@@ -167,6 +172,7 @@ export default function AdminPanel() {
   });
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
+  const [isProjectsLoading, setIsProjectsLoading] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState("hero");
 
   // Projects state
@@ -340,6 +346,7 @@ export default function AdminPanel() {
   };
 
   const fetchProjects = async () => {
+    setIsProjectsLoading(true);
     try {
       const response = await fetch("/api/projects");
       if (response.ok) {
@@ -350,6 +357,8 @@ export default function AdminPanel() {
       }
     } catch (error) {
       console.error("Failed to fetch projects:", error);
+    } finally {
+      setIsProjectsLoading(false);
     }
   };
 
@@ -747,6 +756,26 @@ export default function AdminPanel() {
     appendExpertiseCategory(newCategory);
   };
 
+  // Drag and drop handlers
+  const handleRotatingTextsReorder = (newItems: typeof rotatingTexts) => {
+    heroForm.setValue("rotatingTexts", newItems);
+  };
+
+  const handleTechIconsReorder = (newItems: typeof techIcons) => {
+    heroForm.setValue("techIcons", newItems);
+  };
+
+  const handleSocialLinksReorder = (newItems: typeof socialLinks) => {
+    navigationForm.setValue("socialLinks", newItems);
+  };
+
+  const handleExpertiseSkillsReorder = (
+    categoryIndex: number,
+    newItems: any[]
+  ) => {
+    expertiseForm.setValue(`categories.${categoryIndex}.skills`, newItems);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -905,7 +934,7 @@ export default function AdminPanel() {
                     {/* Rotating Texts */}
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <Label>Rotating Texts</Label>
+                        <Label>Rotating Texts (Drag to reorder)</Label>
                         <Button
                           type="button"
                           variant="outline"
@@ -922,39 +951,43 @@ export default function AdminPanel() {
                         </Button>
                       </div>
 
-                      {rotatingTexts.map((field, index) => (
-                        <div key={field.id} className="flex gap-2">
-                          <FormField
-                            control={heroForm.control}
-                            name={`rotatingTexts.${index}.text`}
-                            render={({ field: textField }) => (
-                              <FormItem className="flex-1">
-                                <FormControl>
-                                  <Input
-                                    {...textField}
-                                    placeholder="Enter rotating text"
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => removeRotatingText(index)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      ))}
+                      <DraggableList
+                        items={rotatingTexts}
+                        onReorder={handleRotatingTextsReorder}
+                        renderItem={(field, index) => (
+                          <div className="flex gap-2">
+                            <FormField
+                              control={heroForm.control}
+                              name={`rotatingTexts.${index}.text`}
+                              render={({ field: textField }) => (
+                                <FormItem className="flex-1">
+                                  <FormControl>
+                                    <Input
+                                      {...textField}
+                                      placeholder="Enter rotating text"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => removeRotatingText(index)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        )}
+                      />
                     </div>
 
                     {/* Tech Icons */}
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <Label>Tech Icons</Label>
+                        <Label>Tech Icons (Drag to reorder)</Label>
                         <Button
                           type="button"
                           variant="outline"
@@ -972,47 +1005,54 @@ export default function AdminPanel() {
                         </Button>
                       </div>
 
-                      {techIcons.map((field, index) => (
-                        <div key={field.id} className="space-y-2">
-                          <div className="flex gap-2">
+                      <DraggableList
+                        items={techIcons}
+                        onReorder={handleTechIconsReorder}
+                        renderItem={(field, index) => (
+                          <div className="space-y-2">
+                            <div className="flex gap-2">
+                              <FormField
+                                control={heroForm.control}
+                                name={`techIcons.${index}.title`}
+                                render={({ field: titleField }) => (
+                                  <FormItem className="flex-1">
+                                    <FormControl>
+                                      <Input
+                                        {...titleField}
+                                        placeholder="Icon title"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => removeTechIcon(index)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
                             <FormField
                               control={heroForm.control}
-                              name={`techIcons.${index}.title`}
-                              render={({ field: titleField }) => (
-                                <FormItem className="flex-1">
+                              name={`techIcons.${index}.src`}
+                              render={({ field: srcField }) => (
+                                <FormItem>
                                   <FormControl>
                                     <Input
-                                      {...titleField}
-                                      placeholder="Icon title"
+                                      {...srcField}
+                                      placeholder="Icon URL"
                                     />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
                               )}
                             />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => removeTechIcon(index)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
                           </div>
-                          <FormField
-                            control={heroForm.control}
-                            name={`techIcons.${index}.src`}
-                            render={({ field: srcField }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input {...srcField} placeholder="Icon URL" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      ))}
+                        )}
+                      />
                     </div>
 
                     <Button type="submit" disabled={isSaving}>
@@ -1049,7 +1089,7 @@ export default function AdminPanel() {
                     {/* Social Links */}
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <Label>Social Links</Label>
+                        <Label>Social Links (Drag to reorder)</Label>
                         <Button
                           type="button"
                           variant="outline"
@@ -1071,190 +1111,191 @@ export default function AdminPanel() {
                         </Button>
                       </div>
 
-                      {socialLinks.map((field, index) => (
-                        <div
-                          key={field.id}
-                          className="border rounded-lg p-4 space-y-4"
-                        >
-                          <div className="grid grid-cols-12 gap-4 items-end">
-                            <FormField
-                              control={navigationForm.control}
-                              name={`socialLinks.${index}.label`}
-                              render={({ field: labelField }) => (
-                                <FormItem className="col-span-3">
-                                  <FormLabel>Label</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...labelField}
-                                      placeholder="Facebook"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={navigationForm.control}
-                              name={`socialLinks.${index}.href`}
-                              render={({ field: hrefField }) => (
-                                <FormItem className="col-span-4">
-                                  <FormLabel>URL</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...hrefField}
-                                      placeholder="https://facebook.com/..."
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={navigationForm.control}
-                              name={`socialLinks.${index}.iconType`}
-                              render={({ field: iconTypeField }) => (
-                                <FormItem className="col-span-2">
-                                  <FormLabel>Icon Type</FormLabel>
-                                  <FormControl>
-                                    <Select
-                                      value={iconTypeField.value}
-                                      onValueChange={iconTypeField.onChange}
-                                    >
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Type" />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="lucide">
-                                          Lucide Icon
-                                        </SelectItem>
-                                        <SelectItem value="image">
-                                          External Image
-                                        </SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={navigationForm.control}
-                              name={`socialLinks.${index}.order`}
-                              render={({ field: orderField }) => (
-                                <FormItem className="col-span-2">
-                                  <FormLabel>Order</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...orderField}
-                                      type="number"
-                                      min="0"
-                                      value={orderField.value}
-                                      onChange={(e) =>
-                                        orderField.onChange(
-                                          parseInt(e.target.value) || 0
-                                        )
-                                      }
-                                      placeholder="0"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <div className="col-span-1">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => removeSocialLink(index)}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-12 gap-4">
-                            <FormField
-                              control={navigationForm.control}
-                              name={`socialLinks.${index}.icon`}
-                              render={({ field: iconField }) => (
-                                <FormItem className="col-span-4">
-                                  <FormLabel>
-                                    {navigationForm.watch(
-                                      `socialLinks.${index}.iconType`
-                                    ) === "image"
-                                      ? "Image URL"
-                                      : "Lucide Icon"}
-                                  </FormLabel>
-                                  <FormControl>
-                                    {navigationForm.watch(
-                                      `socialLinks.${index}.iconType`
-                                    ) === "image" ? (
+                      <DraggableList
+                        items={socialLinks}
+                        onReorder={handleSocialLinksReorder}
+                        renderItem={(field, index) => (
+                          <div className="border rounded-lg p-4 space-y-4">
+                            <div className="grid grid-cols-12 gap-4 items-end">
+                              <FormField
+                                control={navigationForm.control}
+                                name={`socialLinks.${index}.label`}
+                                render={({ field: labelField }) => (
+                                  <FormItem className="col-span-3">
+                                    <FormLabel>Label</FormLabel>
+                                    <FormControl>
                                       <Input
-                                        {...iconField}
-                                        placeholder="https://example.com/icon.svg"
+                                        {...labelField}
+                                        placeholder="Facebook"
                                       />
-                                    ) : (
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={navigationForm.control}
+                                name={`socialLinks.${index}.href`}
+                                render={({ field: hrefField }) => (
+                                  <FormItem className="col-span-4">
+                                    <FormLabel>URL</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        {...hrefField}
+                                        placeholder="https://facebook.com/..."
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={navigationForm.control}
+                                name={`socialLinks.${index}.iconType`}
+                                render={({ field: iconTypeField }) => (
+                                  <FormItem className="col-span-2">
+                                    <FormLabel>Icon Type</FormLabel>
+                                    <FormControl>
                                       <Select
-                                        value={iconField.value}
-                                        onValueChange={iconField.onChange}
+                                        value={iconTypeField.value}
+                                        onValueChange={iconTypeField.onChange}
                                       >
                                         <SelectTrigger>
-                                          <SelectValue placeholder="Select icon" />
+                                          <SelectValue placeholder="Type" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                          <SelectItem value="Facebook">
-                                            Facebook
+                                          <SelectItem value="lucide">
+                                            Lucide Icon
                                           </SelectItem>
-                                          <SelectItem value="Linkedin">
-                                            LinkedIn
-                                          </SelectItem>
-                                          <SelectItem value="Github">
-                                            GitHub
-                                          </SelectItem>
-                                          <SelectItem value="Twitter">
-                                            Twitter
-                                          </SelectItem>
-                                          <SelectItem value="Instagram">
-                                            Instagram
-                                          </SelectItem>
-                                          <SelectItem value="Youtube">
-                                            YouTube
-                                          </SelectItem>
-                                          <SelectItem value="ExternalLink">
-                                            External Link
+                                          <SelectItem value="image">
+                                            External Image
                                           </SelectItem>
                                         </SelectContent>
                                       </Select>
-                                    )}
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={navigationForm.control}
-                              name={`socialLinks.${index}.isActive`}
-                              render={({ field: activeField }) => (
-                                <FormItem className="col-span-2 flex items-center space-x-2 pt-6">
-                                  <FormLabel>Active</FormLabel>
-                                  <FormControl>
-                                    <input
-                                      type="checkbox"
-                                      checked={activeField.value}
-                                      onChange={(e) =>
-                                        activeField.onChange(e.target.checked)
-                                      }
-                                      className="h-4 w-4"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={navigationForm.control}
+                                name={`socialLinks.${index}.order`}
+                                render={({ field: orderField }) => (
+                                  <FormItem className="col-span-2">
+                                    <FormLabel>Order</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        {...orderField}
+                                        type="number"
+                                        min="0"
+                                        value={orderField.value}
+                                        onChange={(e) =>
+                                          orderField.onChange(
+                                            parseInt(e.target.value) || 0
+                                          )
+                                        }
+                                        placeholder="0"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <div className="col-span-1">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => removeSocialLink(index)}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-12 gap-4">
+                              <FormField
+                                control={navigationForm.control}
+                                name={`socialLinks.${index}.icon`}
+                                render={({ field: iconField }) => (
+                                  <FormItem className="col-span-4">
+                                    <FormLabel>
+                                      {navigationForm.watch(
+                                        `socialLinks.${index}.iconType`
+                                      ) === "image"
+                                        ? "Image URL"
+                                        : "Lucide Icon"}
+                                    </FormLabel>
+                                    <FormControl>
+                                      {navigationForm.watch(
+                                        `socialLinks.${index}.iconType`
+                                      ) === "image" ? (
+                                        <Input
+                                          {...iconField}
+                                          placeholder="https://example.com/icon.svg"
+                                        />
+                                      ) : (
+                                        <Select
+                                          value={iconField.value}
+                                          onValueChange={iconField.onChange}
+                                        >
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Select icon" />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="Facebook">
+                                              Facebook
+                                            </SelectItem>
+                                            <SelectItem value="Linkedin">
+                                              LinkedIn
+                                            </SelectItem>
+                                            <SelectItem value="Github">
+                                              GitHub
+                                            </SelectItem>
+                                            <SelectItem value="Twitter">
+                                              Twitter
+                                            </SelectItem>
+                                            <SelectItem value="Instagram">
+                                              Instagram
+                                            </SelectItem>
+                                            <SelectItem value="Youtube">
+                                              YouTube
+                                            </SelectItem>
+                                            <SelectItem value="ExternalLink">
+                                              External Link
+                                            </SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      )}
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={navigationForm.control}
+                                name={`socialLinks.${index}.isActive`}
+                                render={({ field: activeField }) => (
+                                  <FormItem className="col-span-2 flex items-center space-x-2 pt-6">
+                                    <FormLabel>Active</FormLabel>
+                                    <FormControl>
+                                      <input
+                                        type="checkbox"
+                                        checked={activeField.value}
+                                        onChange={(e) =>
+                                          activeField.onChange(e.target.checked)
+                                        }
+                                        className="h-4 w-4"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        )}
+                      />
                     </div>
 
                     <Button type="submit" disabled={isSaving}>
@@ -1660,7 +1701,7 @@ export default function AdminPanel() {
                         <CardContent>
                           <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                              <Label>Skills</Label>
+                              <Label>Skills (Drag to reorder)</Label>
                               <Button
                                 type="button"
                                 variant="outline"
@@ -1674,13 +1715,23 @@ export default function AdminPanel() {
                               </Button>
                             </div>
 
-                            {expertiseForm
-                              .watch(`categories.${categoryIndex}.skills`)
-                              ?.map((skill: any, skillIndex: number) => (
-                                <div
-                                  key={skillIndex}
-                                  className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg"
-                                >
+                            <DraggableList
+                              items={
+                                expertiseForm
+                                  .watch(`categories.${categoryIndex}.skills`)
+                                  ?.map((skill: any, index: number) => ({
+                                    ...skill,
+                                    id: skill.id || `skill-${index}`,
+                                  })) || []
+                              }
+                              onReorder={(newItems) =>
+                                handleExpertiseSkillsReorder(
+                                  categoryIndex,
+                                  newItems
+                                )
+                              }
+                              renderItem={(skill, skillIndex) => (
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg">
                                   <FormField
                                     control={expertiseForm.control}
                                     name={`categories.${categoryIndex}.skills.${skillIndex}.name`}
@@ -1741,7 +1792,8 @@ export default function AdminPanel() {
                                     </Button>
                                   </div>
                                 </div>
-                              ))}
+                              )}
+                            />
                           </div>
                         </CardContent>
                       </Card>
@@ -1801,70 +1853,74 @@ export default function AdminPanel() {
             </div>
 
             {/* Projects List */}
-            <div className="grid gap-4">
-              {projects.map((project) => (
-                <Card key={project._id} className="p-3 sm:p-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                        <ProjectImageDisplay
-                          image={project.mainImage}
-                          alt={project.title}
-                          width={64}
-                          height={64}
-                          className="w-full h-full object-cover"
-                        />
+            {isProjectsLoading ? (
+              <ProjectLoading count={5} />
+            ) : (
+              <div className="grid gap-4">
+                {projects.map((project) => (
+                  <Card key={project._id} className="p-3 sm:p-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                          <ProjectImageDisplay
+                            image={project.mainImage}
+                            alt={project.title}
+                            width={64}
+                            height={64}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-semibold text-base sm:text-lg truncate">
+                            {project.title}
+                          </h3>
+                          <p className="text-sm text-gray-600 truncate">
+                            {project.category} • {project.framework}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate sm:block">
+                            {project.shortDescription}
+                          </p>
+                          {project.featured && (
+                            <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded mt-1">
+                              Featured
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-semibold text-base sm:text-lg truncate">
-                          {project.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 truncate">
-                          {project.category} • {project.framework}
-                        </p>
-                        <p className="text-xs text-gray-500 truncate sm:block">
-                          {project.shortDescription}
-                        </p>
-                        {project.featured && (
-                          <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded mt-1">
-                            Featured
-                          </span>
-                        )}
+                      <div className="flex space-x-2 sm:flex-shrink-0">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => editProject(project)}
+                          className="flex-1 sm:flex-none"
+                        >
+                          <Edit className="h-4 w-4 sm:mr-0" />
+                          <span className="ml-2 sm:hidden">Edit</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => deleteProject(project._id!)}
+                          className="flex-1 sm:flex-none"
+                        >
+                          <Trash2 className="h-4 w-4 sm:mr-0" />
+                          <span className="ml-2 sm:hidden">Delete</span>
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex space-x-2 sm:flex-shrink-0">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => editProject(project)}
-                        className="flex-1 sm:flex-none"
-                      >
-                        <Edit className="h-4 w-4 sm:mr-0" />
-                        <span className="ml-2 sm:hidden">Edit</span>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => deleteProject(project._id!)}
-                        className="flex-1 sm:flex-none"
-                      >
-                        <Trash2 className="h-4 w-4 sm:mr-0" />
-                        <span className="ml-2 sm:hidden">Delete</span>
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                ))}
 
-              {projects.length === 0 && (
-                <Card className="p-8 text-center">
-                  <p className="text-gray-500">
-                    No projects found. Click "Add New Project" to create your
-                    first project.
-                  </p>
-                </Card>
-              )}
-            </div>
+                {!isProjectsLoading && projects.length === 0 && (
+                  <Card className="p-8 text-center">
+                    <p className="text-gray-500">
+                      No projects found. Click "Add New Project" to create your
+                      first project.
+                    </p>
+                  </Card>
+                )}
+              </div>
+            )}
 
             {/* Project Form Modal/Sheet */}
             {isProjectFormOpen && (
