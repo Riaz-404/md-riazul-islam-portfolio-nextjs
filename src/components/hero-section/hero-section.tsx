@@ -14,18 +14,31 @@ import { HeroData } from "@/types/hero";
 
 async function getHeroData(): Promise<HeroData> {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000"}/api/hero`,
-      {
-        cache: "no-store",
-      }
+    const { getHeroData: getHeroDataFromDB } = await import(
+      "@/lib/hero-service"
     );
+    const heroData = await getHeroDataFromDB();
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch hero data");
+    if (!heroData) {
+      throw new Error("No hero data found");
     }
 
-    return response.json();
+    return {
+      id: heroData.id,
+      name: heroData.name,
+      description: heroData.description,
+      profileImage: heroData.profileImage,
+      cvDownloadUrl: heroData.cvDownloadUrl,
+      rotatingTexts: heroData.rotatingTexts.map((text: any) => ({
+        id: text.id,
+        text: text.text,
+      })),
+      techIcons: heroData.techIcons.map((icon: any) => ({
+        id: icon.id,
+        src: icon.src,
+        title: icon.title,
+      })),
+    };
   } catch (error) {
     console.error("Error fetching hero data:", error);
     const { defaultHeroData } = await import("@/types/hero");

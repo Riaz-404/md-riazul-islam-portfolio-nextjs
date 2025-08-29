@@ -25,24 +25,24 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Md. Riazul Islam - Full Stack Developer | Portfolio",
+  title: "Md. Riazul Islam - Software Engineer | Portfolio",
   description:
-    "Passionate Full Stack Web Developer specializing in MERN stack, creating modern websites and web applications. Explore my projects and expertise in programming, problem solving, and web development.",
+    "Passionate Software Engineer specializing in MERN stack, creating modern websites and web applications. Explore my projects and expertise in programming, problem solving, and web development.",
   keywords:
-    "Full Stack Developer, MERN Stack, Web Developer, React, Node.js, JavaScript, Python, MongoDB, Portfolio",
+    "Software Engineer, Full Stack Software Engineer, MERN Stack, Web Developer, React, Node.js, JavaScript, Python, MongoDB, Portfolio",
   authors: [{ name: "Md. Riazul Islam" }],
   openGraph: {
-    title: "Md. Riazul Islam - Full Stack Developer",
+    title: "Md. Riazul Islam - Software Engineer",
     description:
-      "Passionate Full Stack Web Developer specializing in MERN stack development",
+      "Passionate Software Engineer specializing in MERN stack development",
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Md. Riazul Islam - Full Stack Developer",
+    title: "Md. Riazul Islam - Software Engineer",
     description:
-      "Passionate Full Stack Web Developer specializing in MERN stack development",
+      "Passionate Software Engineer specializing in MERN stack development",
   },
 };
 
