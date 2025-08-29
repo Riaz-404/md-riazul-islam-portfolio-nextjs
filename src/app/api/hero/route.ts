@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getHeroData, updateHeroData } from "@/lib/hero-service";
 import { defaultHeroData } from "@/types/hero";
+
+// Cache for 1 hour
+export const revalidate = 3600;
 
 export async function GET() {
   try {
@@ -41,6 +45,9 @@ export async function PUT(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    // Revalidate the cache after successful update
+    revalidatePath("/api/hero");
 
     return NextResponse.json(updatedHero);
   } catch (error) {

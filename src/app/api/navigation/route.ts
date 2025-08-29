@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { NavigationService } from "@/lib/navigation-service";
 import { defaultNavigationData } from "@/types/navigation";
+
+// Cache for 1 hour
+export const revalidate = 3600;
 
 export async function GET() {
   try {
@@ -28,6 +32,10 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const navigation = await NavigationService.createNavigation(body);
+
+    // Revalidate the cache after successful creation
+    revalidatePath("/api/navigation");
+
     return NextResponse.json(navigation, { status: 201 });
   } catch (error) {
     console.error("Error in POST /api/navigation:", error);
@@ -42,6 +50,10 @@ export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
     const navigation = await NavigationService.updateNavigation(body);
+
+    // Revalidate the cache after successful update
+    revalidatePath("/api/navigation");
+
     return NextResponse.json(navigation);
   } catch (error) {
     console.error("Error in PUT /api/navigation:", error);

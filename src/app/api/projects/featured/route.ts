@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { ProjectService } from "@/lib/project-service";
 
+// Cache for 1 hour
+export const revalidate = 3600;
+
 const projectService = new ProjectService();
 
 export async function GET() {

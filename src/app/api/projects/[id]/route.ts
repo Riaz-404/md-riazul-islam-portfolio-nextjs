@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { ProjectService } from "@/lib/project-service";
+
+// Cache for 1 hour
+export const revalidate = 3600;
 
 const projectService = new ProjectService();
 
@@ -131,6 +135,11 @@ export async function PUT(
       Object.keys(files).length > 0 ? files : undefined
     );
 
+    // Revalidate the cache after successful update
+    revalidatePath("/api/projects");
+    revalidatePath("/api/projects/featured");
+    revalidatePath(`/api/projects/${id}`);
+
     return NextResponse.json({ success: true, data: updatedProject });
   } catch (error) {
     console.error("Error updating project:", error);
@@ -152,6 +161,10 @@ export async function DELETE(
   try {
     const { id } = params;
     await projectService.deleteProject(id);
+
+    // Revalidate the cache after successful deletion
+    revalidatePath("/api/projects");
+    revalidatePath("/api/projects/featured");
 
     return NextResponse.json({
       success: true,

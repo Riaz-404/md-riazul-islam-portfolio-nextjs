@@ -4,4 +4,5 @@ export { AboutMyselfSection } from "./about-myself-section";
 export { SkillsSection } from "./skills-section";
 export { ExpertiseSection } from "./expertise-section";
 export { ProjectsSection } from "./projects-section";
+export { AdminCacheSection } from "./cache-section";
 export * from "./schemas";

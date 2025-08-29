@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getAboutData, updateAboutData } from "@/lib/about-service";
+
+// Cache for 1 hour
+export const revalidate = 3600;
 
 export async function GET() {
   try {
@@ -34,6 +38,9 @@ export async function PUT(request: NextRequest) {
       myself: body.myself,
       skills: body.skills,
     });
+
+    // Revalidate the cache after successful update
+    revalidatePath("/api/about");
 
     return NextResponse.json({
       success: true,

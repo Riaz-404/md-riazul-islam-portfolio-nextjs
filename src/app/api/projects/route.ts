@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { ProjectService } from "@/lib/project-service";
+
+// Cache for 1 hour
+export const revalidate = 3600;
 
 const projectService = new ProjectService();
 
@@ -113,6 +117,10 @@ export async function POST(request: NextRequest) {
     };
 
     const newProject = await projectService.createProject(projectData, files);
+
+    // Revalidate the cache after successful creation
+    revalidatePath("/api/projects");
+    revalidatePath("/api/projects/featured");
 
     return NextResponse.json({ success: true, data: newProject });
   } catch (error) {

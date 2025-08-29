@@ -15,6 +15,7 @@ import {
   SkillsSection,
   ExpertiseSection,
   ProjectsSection,
+  AdminCacheSection,
 } from "@/components/admin";
 
 export default function AdminPanel() {
@@ -202,6 +203,12 @@ export default function AdminPanel() {
               >
                 Projects
               </TabsTrigger>
+              <TabsTrigger
+                value="admin"
+                className="text-xs sm:text-sm flex-shrink-0"
+              >
+                Admin
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -258,6 +265,11 @@ export default function AdminPanel() {
               isProjectsLoading={isProjectsLoading}
               isSaving={isSaving}
             />
+          </TabsContent>
+
+          {/* Admin Tab */}
+          <TabsContent value="admin" className="space-y-4">
+            <AdminCacheSection />
           </TabsContent>
         </Tabs>
       </div>
