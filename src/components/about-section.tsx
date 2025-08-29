@@ -55,8 +55,6 @@ async function getSocialLinks(): Promise<SocialLink[]> {
       id: link.id,
       href: link.href,
       icon: link.icon,
-      iconType: link.iconType || "lucide",
-      imageUrl: link.imageUrl || "",
       label: link.label,
       order: link.order,
       isActive: link.isActive,

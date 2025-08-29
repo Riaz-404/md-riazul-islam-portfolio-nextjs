@@ -25,7 +25,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Md. Riazul Islam - Software Engineer | Portfolio",
+  title: "Md. Riazul Islam - Software Engineer",
   description:
     "Passionate Software Engineer specializing in MERN stack, creating modern websites and web applications. Explore my projects and expertise in programming, problem solving, and web development.",
   keywords:

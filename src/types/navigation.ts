@@ -10,9 +10,7 @@ export interface StaticNavigationLink {
 export interface SocialLink {
   id: string;
   href: string;
-  icon: string; // Icon name from Lucide React or external image URL
-  iconType: "lucide" | "image"; // Type of icon: lucide icon or external image
-  imageUrl?: string; // External image URL when iconType is "image"
+  icon: string; // External image URL (e.g., Icons8, Simple Icons, etc.)
   label: string;
   order: number;
   isActive: boolean;
@@ -44,8 +42,7 @@ export const defaultNavigationData: Omit<
     {
       id: "1",
       href: "https://www.facebook.com/imriaz.cu/",
-      icon: "Facebook",
-      iconType: "lucide" as const,
+      icon: "https://img.icons8.com/fluency/48/facebook-new.png",
       label: "Facebook",
       order: 1,
       isActive: true,
@@ -53,8 +50,7 @@ export const defaultNavigationData: Omit<
     {
       id: "2",
       href: "https://www.linkedin.com/in/md-riazul-islam-891b65194/",
-      icon: "Linkedin",
-      iconType: "lucide" as const,
+      icon: "https://img.icons8.com/fluency/48/linkedin.png",
       label: "LinkedIn",
       order: 2,
       isActive: true,
@@ -62,8 +58,7 @@ export const defaultNavigationData: Omit<
     {
       id: "3",
       href: "https://github.com/Riaz-404",
-      icon: "Github",
-      iconType: "lucide" as const,
+      icon: "https://img.icons8.com/fluency/48/github.png",
       label: "GitHub",
       order: 3,
       isActive: true,

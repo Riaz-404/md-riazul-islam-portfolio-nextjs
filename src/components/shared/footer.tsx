@@ -18,8 +18,6 @@ async function getSocialLinks(): Promise<SocialLink[]> {
       label: link.label,
       order: link.order,
       isActive: link.isActive,
-      iconType: link.iconType || "lucide",
-      imageUrl: link.imageUrl || "",
     }));
   } catch (error) {
     console.error("Error fetching social links:", error);
@@ -41,7 +39,6 @@ export async function Footer() {
                 <li key={social.id}>
                   <SocialLinkButton
                     link={social}
-                    className="border-muted-foreground/20 hover:border-primary hover:bg-primary/10 hover:text-primary transition-all duration-300 text-lg h-12 w-12"
                   />
                 </li>
               ))}

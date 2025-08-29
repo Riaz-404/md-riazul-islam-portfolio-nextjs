@@ -38,8 +38,6 @@ export function Navigation() {
               label: link.label,
               order: link.order,
               isActive: link.isActive,
-              iconType: link.iconType || "lucide",
-              imageUrl: link.imageUrl || "",
             })) || [];
           setSocialLinks(plainSocialLinks);
         } else {

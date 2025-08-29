@@ -96,8 +96,7 @@ export const navigationSchema = z.object({
     z.object({
       id: z.string(),
       href: z.string().url("Must be a valid URL"),
-      icon: z.string().min(1, "Icon is required"),
-      iconType: z.enum(["lucide", "image"]),
+      icon: z.string().url("Must be a valid image URL"),
       label: z.string().min(1, "Label is required"),
       order: z.number().min(0, "Order must be non-negative"),
       isActive: z.boolean(),

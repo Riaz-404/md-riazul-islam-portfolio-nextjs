@@ -28,6 +28,39 @@ import {
 } from "@/components/ui/select";
 import { navigationSchema, NavigationFormData } from "./schemas";
 
+// Icon Preview Component
+const IconPreview = ({ iconValue }: { iconValue: string }) => {
+  if (!iconValue) {
+    return <span className="text-xs text-muted-foreground">No Icon</span>;
+  }
+
+  // Check if this icon might need a background for dark mode visibility
+  const needsBackground =
+    iconValue.includes("github") ||
+    iconValue.includes("monochrome") ||
+    iconValue.includes("material-outlined");
+
+  return (
+    <img
+      src={iconValue}
+      alt="Icon preview"
+      className={
+        needsBackground
+          ? "w-5 h-5 object-contain bg-white dark:bg-white rounded-full"
+          : "w-5 h-5 object-contain"
+      }
+      onError={(e) => {
+        const target = e.target as HTMLImageElement;
+        target.style.display = "none";
+        const nextElement = target.nextElementSibling as HTMLElement;
+        if (nextElement) {
+          nextElement.classList.remove("hidden");
+        }
+      }}
+    />
+  );
+};
+
 interface NavigationSectionProps {
   navigationData: NavigationData;
   onNavigationDataChange: (data: NavigationData) => void;
@@ -59,14 +92,8 @@ export function NavigationSection({
 
   // Update form when navigationData changes
   React.useEffect(() => {
-    const socialLinksWithIconType =
-      navigationData.socialLinks?.map((link: any) => ({
-        ...link,
-        iconType: link.iconType || "lucide",
-      })) || [];
-
     navigationForm.reset({
-      socialLinks: socialLinksWithIconType,
+      socialLinks: navigationData.socialLinks || [],
     });
   }, [navigationData, navigationForm]);
 
@@ -105,6 +132,46 @@ export function NavigationSection({
     <Card>
       <CardHeader>
         <CardTitle>Social Links Settings</CardTitle>
+        <div className="text-sm text-muted-foreground space-y-2">
+          <p>Add social media links with icons using external image URLs.</p>
+          <ul className="list-disc list-inside ml-4 space-y-1">
+            <li>
+              <strong>Icons8:</strong> Get high-quality icons from{" "}
+              <a
+                href="https://icons8.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                Icons8
+              </a>
+            </li>
+            <li>
+              <strong>Simple Icons:</strong> Use{" "}
+              <a
+                href="https://simpleicons.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                Simple Icons
+              </a>{" "}
+              CDN:{" "}
+              <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/[iconname].svg
+              </code>
+            </li>
+            <li>
+              <strong>Any URL:</strong> You can use any image URL that points to
+              an icon
+            </li>
+            <li>
+              <strong>Dark Mode Note:</strong> GitHub and other monochrome icons
+              automatically get a white background in dark mode for better
+              visibility
+            </li>
+          </ul>
+        </div>
       </CardHeader>
       <CardContent>
         <Form {...navigationForm}>
@@ -124,8 +191,7 @@ export function NavigationSection({
                     appendSocialLink({
                       id: `social-${Date.now()}`,
                       href: "",
-                      icon: "ExternalLink",
-                      iconType: "lucide",
+                      icon: "",
                       label: "",
                       order: socialLinks.length,
                       isActive: true,
@@ -147,7 +213,7 @@ export function NavigationSection({
                         control={navigationForm.control}
                         name={`socialLinks.${index}.label`}
                         render={({ field: labelField }) => (
-                          <FormItem className="col-span-3">
+                          <FormItem className="col-span-4">
                             <FormLabel>Label</FormLabel>
                             <FormControl>
                               <Input {...labelField} placeholder="Facebook" />
@@ -167,34 +233,6 @@ export function NavigationSection({
                                 {...hrefField}
                                 placeholder="https://facebook.com/..."
                               />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={navigationForm.control}
-                        name={`socialLinks.${index}.iconType`}
-                        render={({ field: iconTypeField }) => (
-                          <FormItem className="col-span-2">
-                            <FormLabel>Icon Type</FormLabel>
-                            <FormControl>
-                              <Select
-                                value={iconTypeField.value}
-                                onValueChange={iconTypeField.onChange}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="lucide">
-                                    Lucide Icon
-                                  </SelectItem>
-                                  <SelectItem value="image">
-                                    External Image
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -224,7 +262,7 @@ export function NavigationSection({
                           </FormItem>
                         )}
                       />
-                      <div className="col-span-1">
+                      <div className="col-span-2">
                         <Button
                           type="button"
                           variant="outline"
@@ -241,60 +279,40 @@ export function NavigationSection({
                         control={navigationForm.control}
                         name={`socialLinks.${index}.icon`}
                         render={({ field: iconField }) => (
-                          <FormItem className="col-span-4">
-                            <FormLabel>
-                              {navigationForm.watch(
-                                `socialLinks.${index}.iconType`
-                              ) === "image"
-                                ? "Image URL"
-                                : "Lucide Icon"}
-                            </FormLabel>
+                          <FormItem className="col-span-6">
+                            <FormLabel>Icon Image URL</FormLabel>
                             <FormControl>
-                              {navigationForm.watch(
-                                `socialLinks.${index}.iconType`
-                              ) === "image" ? (
+                              <div className="space-y-2">
                                 <Input
                                   {...iconField}
-                                  placeholder="https://example.com/icon.svg"
+                                  placeholder="https://img.icons8.com/fluency/48/facebook-new.png"
                                 />
-                              ) : (
-                                <Select
-                                  value={iconField.value}
-                                  onValueChange={iconField.onChange}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select icon" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="Facebook">
-                                      Facebook
-                                    </SelectItem>
-                                    <SelectItem value="Linkedin">
-                                      LinkedIn
-                                    </SelectItem>
-                                    <SelectItem value="Github">
-                                      GitHub
-                                    </SelectItem>
-                                    <SelectItem value="Twitter">
-                                      Twitter
-                                    </SelectItem>
-                                    <SelectItem value="Instagram">
-                                      Instagram
-                                    </SelectItem>
-                                    <SelectItem value="Youtube">
-                                      YouTube
-                                    </SelectItem>
-                                    <SelectItem value="ExternalLink">
-                                      External Link
-                                    </SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              )}
+                                <p className="text-xs text-muted-foreground">
+                                  Enter a complete image URL for the icon
+                                  (Icons8, Simple Icons CDN, etc.)
+                                </p>
+                              </div>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
+
+                      {/* Icon Preview */}
+                      <div className="col-span-2">
+                        <FormLabel>Preview</FormLabel>
+                        <div className="flex items-center justify-center h-10 w-10 border rounded bg-muted/50">
+                          <IconPreview
+                            iconValue={navigationForm.watch(
+                              `socialLinks.${index}.icon`
+                            )}
+                          />
+                          <span className="hidden text-xs text-red-500">
+                            Error
+                          </span>
+                        </div>
+                      </div>
+
                       <FormField
                         control={navigationForm.control}
                         name={`socialLinks.${index}.isActive`}
