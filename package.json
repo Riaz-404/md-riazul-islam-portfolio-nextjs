@@ -9,7 +9,9 @@
     "lint": "next lint",
     "db:init": "node scripts/init-db.mjs",
     "db:init-api": "curl -X POST http://localhost:5000/api/init-db",
-    "db:add-projects": "node scripts/add-projects.mjs"
+    "db:add-projects": "node scripts/add-projects.mjs",
+    "admin:create": "node scripts/create-admin.mjs",
+    "admin:create-standalone": "node scripts/create-admin-standalone.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -28,14 +30,17 @@
     "@tiptap/pm": "^3.3.0",
     "@tiptap/react": "^3.3.0",
     "@tiptap/starter-kit": "^3.3.0",
+    "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.1",
+    "jose": "^6.1.0",
     "lucide": "^0.542.0",
     "lucide-react": "^0.537.0",
     "mongoose": "^8.18.0",
     "motion": "^12.23.12",
     "next": "15.4.6",
+    "next-auth": "^4.24.11",
     "next-themes": "^0.4.6",
     "react": "19.1.0",
     "react-dom": "19.1.0",

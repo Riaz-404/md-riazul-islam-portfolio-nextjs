@@ -17,8 +17,11 @@ import {
   ProjectsSection,
   AdminCacheSection,
 } from "@/components/admin";
+import { AuthProvider } from "@/components/auth/auth-provider";
+import { ProtectedRoute } from "@/components/auth/protected-route";
+import { AdminHeader } from "@/components/auth/admin-header";
 
-export default function AdminPanel() {
+function AdminPanel() {
   const [aboutData, setAboutData] = React.useState<AboutData>(defaultAboutData);
   const [expertiseData, setExpertiseData] =
     React.useState<ExpertiseData | null>(null);
@@ -274,5 +277,17 @@ export default function AdminPanel() {
         </Tabs>
       </div>
     </div>
+  );
+}
+
+// Main page component with authentication wrapper
+export default function AdminPage() {
+  return (
+    <AuthProvider>
+      <ProtectedRoute>
+        <AdminHeader />
+        <AdminPanel />
+      </ProtectedRoute>
+    </AuthProvider>
   );
 }
