@@ -185,6 +185,8 @@ export async function HeroSection() {
                     src={tech.src}
                     alt={tech.title}
                     title={tech.title}
+                    width={32}
+                    height={32}
                     className="w-6 h-6 lg:w-8 lg:h-8 object-contain"
                   />
                   {/* Tooltip */}
