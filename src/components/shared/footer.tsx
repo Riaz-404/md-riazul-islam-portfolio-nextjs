@@ -38,7 +38,7 @@ export async function Footer() {
           <div className="col-lg-4">
             <ul className="list-inline footer-socials">
               {socialLinks.map((social) => (
-                <li key={social.id} className="list-inline-item">
+                <li key={social.id} className="list-inline-item mx-3">
                   <SocialLinkButton link={social} />
                 </li>
               ))}
@@ -56,9 +56,6 @@ export async function Footer() {
           </div>
           <div className="col-lg-4">
             <p>&copy; {currentYear} All Rights Reserved.</p>
-            <Link href="#top" className="backtop smoth-scroll" aria-label="Top">
-              <i className="ti-angle-up"></i>
-            </Link>
           </div>
         </div>
       </div>

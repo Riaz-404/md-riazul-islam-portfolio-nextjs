@@ -3,6 +3,7 @@ import { Work_Sans, Roboto, Poppins } from "next/font/google";
 import "./globals.css";
 
 import { ThemeProvider } from "@/components/shared/theme-provider";
+import { ScrollToTop } from "@/components/shared/scroll-to-top";
 import { Toaster } from "sonner";
 
 const workSans = Work_Sans({
@@ -76,6 +77,7 @@ export default function RootLayout({
           <main className="grow min-h-screen max-w-screen overflow-x-hidden">
             {children}
           </main>
+          <ScrollToTop />
           <Toaster position="top-right" richColors expand theme="system" />
         </ThemeProvider>
       </body>
