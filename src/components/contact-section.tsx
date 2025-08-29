@@ -87,53 +87,37 @@ export function ContactSection() {
   }
 
   return (
-    <section className="section" id="contact">
+    <section className="section py-24 lg:py-32" id="contact">
       <MotionDiv
-        className="container content-constrained"
+        className="container"
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         viewport={{ once: true }}
       >
         <div className="row justify-content-center">
-          <div className="col-lg-8">
-            <div className="section-title text-center">
-              <span className="text-color mb-0 text-uppercase letter-spacing text-sm">
+          <div className="col-lg-6">
+            <div className="section-title text-center mb-20">
+              <span className="text-primary mb-4 inline-block text-uppercase tracking-widest text-sm font-medium">
                 <i className="ti-minus mr-2"></i>Contact
               </span>
-              <h1 className="title">Get in Touch</h1>
+              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground leading-tight">
+                Get in Touch
+              </h1>
             </div>
           </div>
         </div>
 
         <div className="row justify-content-center">
-          <div className="col-lg-8">
+          <div className="col-lg-6">
             {submitStatus === "success" && (
-              <div
-                className="alert alert-success mb-4 text-center"
-                style={{
-                  backgroundColor: "rgba(225, 163, 76, 0.1)",
-                  border: "1px solid #e1a34c",
-                  color: "#e1a34c",
-                  padding: "15px",
-                  borderRadius: "5px",
-                }}
-              >
+              <div className="mb-6 p-4 text-center rounded-md border border-primary/20 bg-primary/10 text-primary">
                 Thank you! Your message has been sent successfully.
               </div>
             )}
 
             {submitStatus === "error" && (
-              <div
-                className="alert alert-danger mb-4 text-center"
-                style={{
-                  backgroundColor: "rgba(220, 53, 69, 0.1)",
-                  border: "1px solid #dc3545",
-                  color: "#dc3545",
-                  padding: "15px",
-                  borderRadius: "5px",
-                }}
-              >
+              <div className="mb-6 p-4 text-center rounded-md border border-red-500/20 bg-red-500/10 text-red-500">
                 Sorry, there was an error sending your message. Please try
                 again.
               </div>
@@ -145,7 +129,7 @@ export function ContactSection() {
                 className="contact-form"
               >
                 <div className="row">
-                  <div className="col-lg-6 mb-5">
+                  <div className="col-lg-6 mb-8">
                     <FormField
                       control={form.control}
                       name="name"
@@ -155,18 +139,7 @@ export function ContactSection() {
                             <Input
                               placeholder="Your Name"
                               {...field}
-                              className="contact-input"
-                              style={{
-                                border: "0px",
-                                borderBottom:
-                                  "1px solid rgba(255, 255, 255, 0.25)",
-                                borderRadius: "0px",
-                                paddingLeft: "0px",
-                                fontSize: "18px",
-                                background: "transparent",
-                                color: "#fff",
-                                height: "50px",
-                              }}
+                              className="contact-input border-0 border-b border-border/25 rounded-none pl-0 text-lg bg-transparent text-foreground h-12 placeholder:text-muted-foreground/70 focus:border-primary hover:border-primary transition-colors duration-300"
                             />
                           </FormControl>
                           <FormMessage className="text-red-400 mt-2" />
@@ -175,7 +148,7 @@ export function ContactSection() {
                     />
                   </div>
 
-                  <div className="col-lg-6 mb-5">
+                  <div className="col-lg-6 mb-8">
                     <FormField
                       control={form.control}
                       name="email"
@@ -186,18 +159,7 @@ export function ContactSection() {
                               type="email"
                               placeholder="Your Email"
                               {...field}
-                              className="contact-input"
-                              style={{
-                                border: "0px",
-                                borderBottom:
-                                  "1px solid rgba(255, 255, 255, 0.25)",
-                                borderRadius: "0px",
-                                paddingLeft: "0px",
-                                fontSize: "18px",
-                                background: "transparent",
-                                color: "#fff",
-                                height: "50px",
-                              }}
+                              className="contact-input border-0 border-b border-border/25 rounded-none pl-0 text-lg bg-transparent text-foreground h-12 placeholder:text-muted-foreground/70 focus:border-primary hover:border-primary transition-colors duration-300"
                             />
                           </FormControl>
                           <FormMessage className="text-red-400 mt-2" />
@@ -206,7 +168,7 @@ export function ContactSection() {
                     />
                   </div>
 
-                  <div className="col-lg-12 mb-5">
+                  <div className="col-lg-12 mb-8">
                     <FormField
                       control={form.control}
                       name="subject"
@@ -216,18 +178,7 @@ export function ContactSection() {
                             <Input
                               placeholder="Your Subject"
                               {...field}
-                              className="contact-input"
-                              style={{
-                                border: "0px",
-                                borderBottom:
-                                  "1px solid rgba(255, 255, 255, 0.25)",
-                                borderRadius: "0px",
-                                paddingLeft: "0px",
-                                fontSize: "18px",
-                                background: "transparent",
-                                color: "#fff",
-                                height: "50px",
-                              }}
+                              className="contact-input border-0 border-b border-border/25 rounded-none pl-0 text-lg bg-transparent text-foreground h-12 placeholder:text-muted-foreground/70 focus:border-primary hover:border-primary transition-colors duration-300"
                             />
                           </FormControl>
                           <FormMessage className="text-red-400 mt-2" />
@@ -236,7 +187,7 @@ export function ContactSection() {
                     />
                   </div>
 
-                  <div className="col-lg-12 mb-5">
+                  <div className="col-lg-12 mb-8">
                     <FormField
                       control={form.control}
                       name="message"
@@ -245,21 +196,9 @@ export function ContactSection() {
                           <FormControl>
                             <Textarea
                               placeholder="Your Message"
-                              className="contact-textarea"
+                              className="contact-textarea border-0 border-b border-border/25 rounded-none pl-0 text-lg bg-transparent text-foreground min-h-[120px] resize-y placeholder:text-muted-foreground/70 focus:border-primary hover:border-primary transition-colors duration-300"
                               rows={6}
                               {...field}
-                              style={{
-                                border: "0px",
-                                borderBottom:
-                                  "1px solid rgba(255, 255, 255, 0.25)",
-                                borderRadius: "0px",
-                                paddingLeft: "0px",
-                                fontSize: "18px",
-                                background: "transparent",
-                                color: "#fff",
-                                resize: "vertical",
-                                minHeight: "120px",
-                              }}
                             />
                           </FormControl>
                           <FormMessage className="text-red-400 mt-2" />
@@ -268,21 +207,11 @@ export function ContactSection() {
                     />
                   </div>
 
-                  <div className="text-center col-lg-12 mb-5">
+                  <div className="text-center col-lg-12 mb-8">
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      className="btn btn-main text-white mt-5"
-                      style={{
-                        backgroundColor: "#e1a34c",
-                        borderColor: "#e1a34c",
-                        padding: "15px 40px",
-                        fontSize: "16px",
-                        fontWeight: "600",
-                        textTransform: "uppercase",
-                        letterSpacing: "1px",
-                        transition: "all 0.3s ease",
-                      }}
+                      className="btn-main mt-12 px-11 py-3 text-lg font-normal tracking-wide uppercase transition-all duration-200 ease-in-out hover:bg-transparent hover:text-foreground hover:border-border/20"
                     >
                       {isSubmitting ? "Sending..." : "Send Message"}
                     </Button>

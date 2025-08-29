@@ -94,9 +94,20 @@ main {
   padding-right: 0.75rem;
 }
 
+.col-lg-6 {
+  flex: 0 0 auto;
+  width: 100%;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
 @media (min-width: 1024px) {
   .col-lg-8 {
     width: 66.666667%;
+  }
+
+  .col-lg-6 {
+    width: 50%;
   }
 }
 
@@ -857,5 +868,59 @@ main {
   .project-card:hover {
     transform: translateY(-5px);
     transition: all 0.3s ease;
+  }
+
+  /* Enhanced Contact Form Theme Support */
+  .contact-input,
+  .contact-textarea {
+    transition: border-color 0.3s ease !important;
+  }
+
+  /* Dark theme contact form styles */
+  .dark .contact-input,
+  .dark .contact-textarea {
+    color: hsl(var(--foreground)) !important;
+    background: transparent !important;
+    border-bottom-color: hsl(var(--border)) !important;
+  }
+
+  .dark .contact-input:hover,
+  .dark .contact-textarea:hover {
+    border-bottom-color: hsl(var(--primary)) !important;
+  }
+
+  .dark .contact-input:focus,
+  .dark .contact-textarea:focus {
+    border-bottom-color: hsl(var(--primary)) !important;
+    box-shadow: none !important;
+  }
+
+  .dark .contact-input::placeholder,
+  .dark .contact-textarea::placeholder {
+    color: hsl(var(--muted-foreground) / 0.7) !important;
+  }
+
+  /* Light theme contact form styles */
+  .contact-input,
+  .contact-textarea {
+    color: hsl(var(--foreground)) !important;
+    background: transparent !important;
+    border-bottom-color: hsl(var(--border)) !important;
+  }
+
+  .contact-input:hover,
+  .contact-textarea:hover {
+    border-bottom-color: hsl(var(--primary)) !important;
+  }
+
+  .contact-input:focus,
+  .contact-textarea:focus {
+    border-bottom-color: hsl(var(--primary)) !important;
+    box-shadow: none !important;
+  }
+
+  .contact-input::placeholder,
+  .contact-textarea::placeholder {
+    color: hsl(var(--muted-foreground) / 0.7) !important;
   }
 }
