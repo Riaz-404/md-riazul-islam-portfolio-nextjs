@@ -79,26 +79,26 @@ export function Navigation() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <nav className="fixed top-0 w-full z-50 bg-transparent">
-        <div className="container">
-          <div className="flex items-center justify-between h-16 lg:h-20">
-            <div className="w-6 h-6 bg-gray-300 animate-pulse rounded"></div>
-            <div className="hidden lg:flex space-x-8">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div
-                  key={i}
-                  className="w-16 h-4 bg-gray-300 animate-pulse rounded"
-                ></div>
-              ))}
-            </div>
-            <ThemeToggle />
-          </div>
-        </div>
-      </nav>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <nav className="fixed top-0 w-full z-50 bg-transparent">
+  //       <div className="container">
+  //         <div className="flex items-center justify-between h-16 lg:h-20">
+  //           <div className="w-6 h-6 bg-gray-300 animate-pulse rounded"></div>
+  //           <div className="hidden lg:flex space-x-8">
+  //             {[1, 2, 3, 4, 5].map((i) => (
+  //               <div
+  //                 key={i}
+  //                 className="w-16 h-4 bg-gray-300 animate-pulse rounded"
+  //               ></div>
+  //             ))}
+  //           </div>
+  //           <ThemeToggle />
+  //         </div>
+  //       </div>
+  //     </nav>
+  //   );
+  // }
 
   // Filter and sort active social links
   const activeSocialLinks = socialLinks
