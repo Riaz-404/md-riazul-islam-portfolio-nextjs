@@ -1,7 +1,8 @@
 export interface ProjectImage {
   filename: string;
   contentType: string;
-  data: Buffer | string; // Buffer for server, base64 string for client
+  url: string; // Cloudinary URL
+  publicId: string; // Cloudinary public ID for management
 }
 
 export interface ProjectData {

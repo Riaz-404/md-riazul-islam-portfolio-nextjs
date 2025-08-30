@@ -131,7 +131,13 @@ export function ImageUpload({
       {/* Current Image Preview */}
       {value && (
         <div className="relative w-32 h-32 border rounded-lg overflow-hidden">
-          <Image src={value} alt="Preview" fill className="object-cover" />
+          <Image
+            src={value}
+            alt="Preview"
+            width={128}
+            height={128}
+            className="object-cover w-full h-full"
+          />
           <Button
             type="button"
             variant="destructive"

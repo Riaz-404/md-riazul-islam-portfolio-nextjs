@@ -23,8 +23,8 @@ export function ProjectImageDisplay({
 }: ProjectImageDisplayProps) {
   const [imageError, setImageError] = useState(false);
 
-  // Convert buffer data to base64 data URL
-  const imageUrl = `data:${image.contentType};base64,${image.data}`;
+  // Use Cloudinary URL directly
+  const imageUrl = image.url;
 
   if (imageError) {
     return (

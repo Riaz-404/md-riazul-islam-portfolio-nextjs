@@ -20,17 +20,20 @@ export interface IProject extends Document {
   mainImage: {
     filename: string;
     contentType: string;
-    data: Buffer;
+    url: string;
+    publicId: string;
   };
   fullPageImage?: {
     filename: string;
     contentType: string;
-    data: Buffer;
+    url: string;
+    publicId: string;
   };
   additionalImages?: Array<{
     filename: string;
     contentType: string;
-    data: Buffer;
+    url: string;
+    publicId: string;
   }>;
   featured: boolean;
   order: number;
@@ -129,18 +132,21 @@ const ProjectSchema = new Schema<IProject>(
     mainImage: {
       filename: { type: String, required: true },
       contentType: { type: String, required: true },
-      data: { type: Buffer, required: true },
+      url: { type: String, required: true },
+      publicId: { type: String, required: true },
     },
     fullPageImage: {
       filename: { type: String },
       contentType: { type: String },
-      data: { type: Buffer },
+      url: { type: String },
+      publicId: { type: String },
     },
     additionalImages: [
       {
         filename: { type: String, required: true },
         contentType: { type: String, required: true },
-        data: { type: Buffer, required: true },
+        url: { type: String, required: true },
+        publicId: { type: String, required: true },
       },
     ],
     featured: {

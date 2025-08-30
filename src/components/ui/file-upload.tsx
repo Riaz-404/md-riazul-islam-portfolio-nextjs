@@ -141,13 +141,15 @@ export function FileUpload({
               >
                 <div className="flex items-center space-x-3">
                   {file.type.startsWith("image/") ? (
-                    <div className="relative">
+                    <div className="relative w-8 h-8">
                       <ImageIcon className="h-8 w-8 text-gray-400" />
                       {file.type.startsWith("image/") && (
                         <Image
                           src={URL.createObjectURL(file)}
                           alt={file.name}
-                          className="absolute inset-0 h-8 w-8 object-cover rounded"
+                          width={32}
+                          height={32}
+                          className="absolute inset-0 w-8 h-8 object-cover rounded"
                           onLoad={(e) => {
                             URL.revokeObjectURL(
                               (e.target as HTMLImageElement).src

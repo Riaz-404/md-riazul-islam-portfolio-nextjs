@@ -1,6 +1,7 @@
 import { mongoDBConnection } from "@/databases/db-connection";
 import Project from "@/models/Project";
 import { ProjectData, ProjectFormData } from "@/types/project";
+import { CloudinaryService } from "./cloudinary-service";
 
 export class ProjectService {
   async getProjects(): Promise<ProjectData[]> {
@@ -10,24 +11,9 @@ export class ProjectService {
       const projects = await Project.find({})
         .sort({ featured: -1, order: 1, createdAt: -1 })
         .lean();
-
       return projects.map((project: any) => ({
         ...project,
         _id: project._id.toString(),
-        mainImage: {
-          ...project.mainImage,
-          data: project.mainImage.data.toString("base64"),
-        },
-        fullPageImage: project.fullPageImage
-          ? {
-              ...project.fullPageImage,
-              data: project.fullPageImage.data.toString("base64"),
-            }
-          : undefined,
-        additionalImages: project.additionalImages?.map((img: any) => ({
-          ...img,
-          data: img.data.toString("base64"),
-        })),
       }));
     } catch (error) {
       console.error("Error fetching projects:", error);
@@ -48,20 +34,6 @@ export class ProjectService {
       return {
         ...project,
         _id: project._id.toString(),
-        mainImage: {
-          ...project.mainImage,
-          data: project.mainImage.data.toString("base64"),
-        },
-        fullPageImage: project.fullPageImage
-          ? {
-              ...project.fullPageImage,
-              data: project.fullPageImage.data.toString("base64"),
-            }
-          : undefined,
-        additionalImages: project.additionalImages?.map((img: any) => ({
-          ...img,
-          data: img.data.toString("base64"),
-        })),
       };
     } catch (error) {
       console.error("Error fetching project by slug:", error);
@@ -100,25 +72,54 @@ export class ProjectService {
         throw new Error("A project with this title already exists");
       }
 
+      // Upload main image to Cloudinary
+      const mainImageResult = await CloudinaryService.uploadImage(
+        files.mainImage,
+        `projects/${slug}`,
+        files.mainImageName
+      );
+
+      // Upload full page image if provided
+      let fullPageImageResult;
+      if (files.fullPageImage) {
+        fullPageImageResult = await CloudinaryService.uploadImage(
+          files.fullPageImage,
+          `projects/${slug}`,
+          files.fullPageImageName
+        );
+      }
+
+      // Upload additional images if provided
+      let additionalImagesResults: any[] = [];
+      if (files.additionalImages && files.additionalImages.length > 0) {
+        additionalImagesResults = await CloudinaryService.uploadMultipleImages(
+          files.additionalImages,
+          `projects/${slug}`
+        );
+      }
+
       const project = new Project({
         ...projectData,
         slug,
         mainImage: {
           filename: files.mainImageName,
           contentType: files.mainImageType,
-          data: files.mainImage,
+          url: mainImageResult.url,
+          publicId: mainImageResult.publicId,
         },
-        fullPageImage: files.fullPageImage
+        fullPageImage: fullPageImageResult
           ? {
               filename: files.fullPageImageName!,
               contentType: files.fullPageImageType!,
-              data: files.fullPageImage,
+              url: fullPageImageResult.url,
+              publicId: fullPageImageResult.publicId,
             }
           : undefined,
-        additionalImages: files.additionalImages?.map((img) => ({
-          filename: img.name,
-          contentType: img.type,
-          data: img.data,
+        additionalImages: additionalImagesResults.map((result, index) => ({
+          filename: files.additionalImages![index].name,
+          contentType: files.additionalImages![index].type,
+          url: result.url,
+          publicId: result.publicId,
         })),
       });
 
@@ -128,20 +129,6 @@ export class ProjectService {
       return {
         ...savedProjectObj,
         _id: savedProjectObj._id.toString(),
-        mainImage: {
-          ...savedProjectObj.mainImage,
-          data: savedProjectObj.mainImage.data.toString("base64"),
-        },
-        fullPageImage: savedProjectObj.fullPageImage
-          ? {
-              ...savedProjectObj.fullPageImage,
-              data: savedProjectObj.fullPageImage.data.toString("base64"),
-            }
-          : undefined,
-        additionalImages: savedProjectObj.additionalImages?.map((img: any) => ({
-          ...img,
-          data: img.data.toString("base64"),
-        })),
       };
     } catch (error) {
       console.error("Error creating project:", error);
@@ -171,6 +158,12 @@ export class ProjectService {
     try {
       const updateData: any = { ...projectData };
 
+      // Get current project to access existing images for cleanup
+      const currentProject = await Project.findById(id);
+      if (!currentProject) {
+        throw new Error("Project not found");
+      }
+
       // If title is being updated, update slug too
       if (projectData.title) {
         const newSlug = projectData.title
@@ -191,36 +184,84 @@ export class ProjectService {
         updateData.slug = newSlug;
       }
 
-      // Update images if provided
+      const projectSlug = updateData.slug || currentProject.slug;
+
+      // Update main image if provided
       if (files?.mainImage) {
+        // Delete old image from Cloudinary
+        if (currentProject.mainImage?.publicId) {
+          await CloudinaryService.deleteImage(
+            currentProject.mainImage.publicId
+          );
+        }
+
+        const mainImageResult = await CloudinaryService.uploadImage(
+          files.mainImage,
+          `projects/${projectSlug}`,
+          files.mainImageName
+        );
+
         updateData.mainImage = {
           filename: files.mainImageName!,
           contentType: files.mainImageType!,
-          data: files.mainImage,
+          url: mainImageResult.url,
+          publicId: mainImageResult.publicId,
         };
       }
 
+      // Update full page image if provided
       if (files?.fullPageImage) {
+        // Delete old image from Cloudinary
+        if (currentProject.fullPageImage?.publicId) {
+          await CloudinaryService.deleteImage(
+            currentProject.fullPageImage.publicId
+          );
+        }
+
+        const fullPageImageResult = await CloudinaryService.uploadImage(
+          files.fullPageImage,
+          `projects/${projectSlug}`,
+          files.fullPageImageName
+        );
+
         updateData.fullPageImage = {
           filename: files.fullPageImageName!,
           contentType: files.fullPageImageType!,
-          data: files.fullPageImage,
+          url: fullPageImageResult.url,
+          publicId: fullPageImageResult.publicId,
         };
       }
 
+      // Update additional images if provided
       if (files?.additionalImages) {
-        updateData.additionalImages = files.additionalImages.map((img) => ({
-          filename: img.name,
-          contentType: img.type,
-          data: img.data,
-        }));
+        // Delete old additional images from Cloudinary
+        if (currentProject.additionalImages) {
+          for (const img of currentProject.additionalImages) {
+            if (img.publicId) {
+              await CloudinaryService.deleteImage(img.publicId);
+            }
+          }
+        }
+
+        const additionalImagesResults =
+          await CloudinaryService.uploadMultipleImages(
+            files.additionalImages,
+            `projects/${projectSlug}`
+          );
+
+        updateData.additionalImages = additionalImagesResults.map(
+          (result, index) => ({
+            filename: files.additionalImages![index].name,
+            contentType: files.additionalImages![index].type,
+            url: result.url,
+            publicId: result.publicId,
+          })
+        );
       }
 
-      const updatedProject: any = await Project.findByIdAndUpdate(
-        id,
-        updateData,
-        { new: true, runValidators: true }
-      ).lean();
+      const updatedProject = (await Project.findByIdAndUpdate(id, updateData, {
+        new: true,
+      }).lean()) as any;
 
       if (!updatedProject) {
         throw new Error("Project not found");
@@ -229,20 +270,6 @@ export class ProjectService {
       return {
         ...updatedProject,
         _id: updatedProject._id.toString(),
-        mainImage: {
-          ...updatedProject.mainImage,
-          data: updatedProject.mainImage.data.toString("base64"),
-        },
-        fullPageImage: updatedProject.fullPageImage
-          ? {
-              ...updatedProject.fullPageImage,
-              data: updatedProject.fullPageImage.data.toString("base64"),
-            }
-          : undefined,
-        additionalImages: updatedProject.additionalImages?.map((img: any) => ({
-          ...img,
-          data: img.data.toString("base64"),
-        })),
       };
     } catch (error) {
       console.error("Error updating project:", error);
@@ -254,11 +281,41 @@ export class ProjectService {
     await mongoDBConnection();
 
     try {
-      const deletedProject = await Project.findByIdAndDelete(id);
+      // Get project first to access image public IDs for cleanup
+      const project = await Project.findById(id);
 
-      if (!deletedProject) {
+      if (!project) {
         throw new Error("Project not found");
       }
+
+      // Delete images from Cloudinary
+      const imagesToDelete: string[] = [];
+
+      if (project.mainImage?.publicId) {
+        imagesToDelete.push(project.mainImage.publicId);
+      }
+
+      if (project.fullPageImage?.publicId) {
+        imagesToDelete.push(project.fullPageImage.publicId);
+      }
+
+      if (project.additionalImages) {
+        project.additionalImages.forEach((img: any) => {
+          if (img.publicId) {
+            imagesToDelete.push(img.publicId);
+          }
+        });
+      }
+
+      // Delete images from Cloudinary (don't wait for completion to avoid blocking)
+      imagesToDelete.forEach((publicId) => {
+        CloudinaryService.deleteImage(publicId).catch((err) =>
+          console.error(`Failed to delete image ${publicId}:`, err)
+        );
+      });
+
+      // Delete project from database
+      await Project.findByIdAndDelete(id);
     } catch (error) {
       console.error("Error deleting project:", error);
       throw error;
@@ -279,17 +336,24 @@ export class ProjectService {
         _id: project._id.toString(),
         mainImage: {
           ...project.mainImage,
-          data: project.mainImage.data.toString("base64"),
+          // Only add base64 data if it exists (legacy format)
+          ...(project.mainImage?.data
+            ? { data: project.mainImage.data.toString("base64") }
+            : {}),
         },
         fullPageImage: project.fullPageImage
           ? {
               ...project.fullPageImage,
-              data: project.fullPageImage.data.toString("base64"),
+              // Only add base64 data if it exists (legacy format)
+              ...(project.fullPageImage?.data
+                ? { data: project.fullPageImage.data.toString("base64") }
+                : {}),
             }
           : undefined,
         additionalImages: project.additionalImages?.map((img: any) => ({
           ...img,
-          data: img.data.toString("base64"),
+          // Only add base64 data if it exists (legacy format)
+          ...(img?.data ? { data: img.data.toString("base64") } : {}),
         })),
       }));
     } catch (error) {
