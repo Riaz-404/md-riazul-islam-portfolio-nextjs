@@ -2,6 +2,9 @@ import { Metadata } from "next";
 import { Navigation } from "@/components/shared/navigation";
 import { ProjectsSection } from "@/components/projects-section";
 
+// Enable revalidation for this page (1 hour cache with manual revalidation support)
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: "Projects - Md. Riazul Islam",
   description:

@@ -6,6 +6,9 @@ import { ExpertiseSection } from "@/components/expertise-section";
 import { ProjectsSection } from "@/components/projects-section";
 import { ContactSection } from "@/components/contact-section";
 
+// Enable revalidation for this page (1 hour cache with manual revalidation support)
+export const revalidate = 3600;
+
 export default function Home() {
   return (
     <main className="min-h-screen">

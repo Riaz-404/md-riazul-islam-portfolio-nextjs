@@ -22,6 +22,18 @@ interface CacheSection {
 
 const cacheSections: CacheSection[] = [
   {
+    id: "home-page",
+    name: "Home Page",
+    description: "Complete home page with all sections",
+    endpoint: "/",
+  },
+  {
+    id: "projects-page",
+    name: "Projects Page",
+    description: "Projects listing page",
+    endpoint: "/projects",
+  },
+  {
     id: "hero",
     name: "Hero Section",
     description: "Personal information and profile data",
@@ -82,11 +94,16 @@ export function AdminCacheSection() {
 
       const result = await response.json();
 
+      console.log("Revalidation result:", result);
+
       if (result.success) {
         setLastRevalidated((prev) => ({ ...prev, [sectionId]: new Date() }));
+        const sectionName = cacheSections.find((s) => s.id === sectionId)?.name;
         toast.success(
-          `Cache revalidated for ${
-            cacheSections.find((s) => s.id === sectionId)?.name
+          `Cache revalidated for ${sectionName}. Revalidated paths: ${
+            Array.isArray(result.revalidated)
+              ? result.revalidated.join(", ")
+              : result.revalidated
           }`
         );
       } else {
@@ -222,16 +239,20 @@ export function AdminCacheSection() {
         </CardHeader>
         <CardContent className="text-sm text-orange-700 dark:text-orange-300 space-y-2">
           <p>
-            • All API endpoints are cached with a 1-hour automatic revalidation
-            period
+            • Page routes (/, /projects) revalidate server components that fetch
+            data directly from the database
+          </p>
+          <p>
+            • API endpoints (/api/*) are cached with a 1-hour automatic
+            revalidation period
           </p>
           <p>
             • Use manual revalidation after making content changes to see
             updates immediately
           </p>
           <p>
-            • Cache revalidation affects both server-side and static generation
-            caching
+            • Revalidating API endpoints also triggers revalidation of
+            corresponding pages
           </p>
         </CardContent>
       </Card>

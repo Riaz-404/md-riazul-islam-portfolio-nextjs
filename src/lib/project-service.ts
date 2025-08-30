@@ -4,6 +4,26 @@ import { ProjectData, ProjectFormData } from "@/types/project";
 import { CloudinaryService } from "./cloudinary-service";
 
 export class ProjectService {
+  // Helper method to serialize MongoDB documents for client components
+  private serializeProject(project: any): ProjectData {
+    return JSON.parse(
+      JSON.stringify(project, (key, value) => {
+        // Convert ObjectId instances to strings
+        if (value && typeof value === "object" && value._id) {
+          return {
+            ...value,
+            _id: value._id.toString(),
+          };
+        }
+        // Handle top-level _id
+        if (key === "_id" && value && typeof value.toString === "function") {
+          return value.toString();
+        }
+        return value;
+      })
+    );
+  }
+
   async getProjects(): Promise<ProjectData[]> {
     await mongoDBConnection();
 
@@ -11,10 +31,12 @@ export class ProjectService {
       const projects = await Project.find({})
         .sort({ featured: -1, order: 1, createdAt: -1 })
         .lean();
-      return projects.map((project: any) => ({
-        ...project,
-        _id: project._id.toString(),
-      }));
+      return projects.map((project: any) =>
+        this.serializeProject({
+          ...project,
+          _id: project._id.toString(),
+        })
+      );
     } catch (error) {
       console.error("Error fetching projects:", error);
       throw new Error("Failed to fetch projects");
@@ -31,10 +53,10 @@ export class ProjectService {
         return null;
       }
 
-      return {
+      return this.serializeProject({
         ...project,
         _id: project._id.toString(),
-      };
+      });
     } catch (error) {
       console.error("Error fetching project by slug:", error);
       throw new Error("Failed to fetch project");
