@@ -135,6 +135,29 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                   ))}
                 </ul>
               </div>
+
+              {/* Additional Images */}
+              {project.additionalImages &&
+                project.additionalImages.length > 0 && (
+                  <div className="mt-8">
+                    <h4 className="text-xl font-semibold mb-4 text-foreground flex items-center">
+                      <i className="ti-gallery mr-3"></i>
+                      Additional Images
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {project.additionalImages.map((image, index) => (
+                        <ProjectImageDisplay
+                          key={index}
+                          image={image}
+                          alt={`${project.title} - Additional Image ${
+                            index + 1
+                          }`}
+                          className="w-full h-auto rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
             </div>
 
             <div className="lg:col-span-4">
