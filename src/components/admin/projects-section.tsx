@@ -11,9 +11,7 @@ import { toast } from "sonner";
 import { FileUpload } from "@/components/ui/file-upload";
 import { ProjectImageDisplay } from "@/components/ui/project-image";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import {
-  ProjectLoading
-} from "@/components/ui/project-loading";
+import { ProjectLoading } from "@/components/ui/project-loading";
 import { ProjectData, projectCategories, frameworks } from "@/types/project";
 import {
   Form,
@@ -114,7 +112,7 @@ export function ProjectsSection({
       formData.append("responsive", data.responsive.toString());
       formData.append("browserCompatible", data.browserCompatible.toString());
       formData.append("documentation", data.documentation.toString());
-      formData.append("featured", data.featured.toString());
+      formData.append("featured", (data.featured ?? false).toString());
       formData.append("order", data.order.toString());
 
       if (data.liveUrl) formData.append("liveUrl", data.liveUrl);
@@ -125,7 +123,7 @@ export function ProjectsSection({
 
       // Add arrays as JSON
       formData.append("description", JSON.stringify(data.description));
-      formData.append("features", JSON.stringify(data.features));
+      formData.append("features", JSON.stringify(data.features ?? []));
       formData.append("tags", JSON.stringify(data.tags));
 
       // Add images
@@ -351,8 +349,8 @@ export function ProjectsSection({
           {!isProjectsLoading && projects.length === 0 && (
             <Card className="p-8 text-center">
               <p className="text-gray-500">
-                No projects found. Click &quot;Add New Project&quot; to create your first
-                project.
+                No projects found. Click &quot;Add New Project&quot; to create
+                your first project.
               </p>
             </Card>
           )}
@@ -554,7 +552,7 @@ export function ProjectsSection({
                 {/* Features */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <FormLabel>Features *</FormLabel>
+                    <FormLabel>Features</FormLabel>
                     <Button
                       type="button"
                       variant="outline"

@@ -50,7 +50,7 @@ export const expertiseSchema = z.object({
 export const projectSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  features: z.array(z.string().min(1, "Feature is required")),
+  features: z.array(z.string()).optional(),
   shortDescription: z.string().min(1, "Short description is required").max(200),
   category: z.string().min(1, "Category is required"),
   framework: z.string().min(1, "Framework is required"),
@@ -63,7 +63,7 @@ export const projectSchema = z.object({
   liveUrl: z.string().url().optional().or(z.literal("")),
   frontendCodeUrl: z.string().url().optional().or(z.literal("")),
   backendCodeUrl: z.string().url().optional().or(z.literal("")),
-  featured: z.boolean(),
+  featured: z.boolean().optional(),
   order: z.number().min(0),
 });
 
