@@ -6,6 +6,7 @@ import { Footer } from "@/components/shared/footer";
 import { ProjectImageDisplay } from "@/components/ui/project-image";
 import { ProjectActionButton } from "@/components/ui/project-action-button";
 import { Button } from "@/components/ui/button";
+import { ImageGallery } from "@/components/ui/image-gallery";
 import { ProjectService } from "@/lib/project-service";
 import { ArrowLeft } from "lucide-react";
 
@@ -124,17 +125,19 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               </div>
 
               {/* Features */}
-              <div className="mt-8">
-                <h4 className="text-xl font-semibold mb-4 text-foreground flex items-center">
-                  <i className="ti-layout mr-3"></i>
-                  Features
-                </h4>
-                <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                  {project.features.map((feature, index) => (
-                    <li key={index}>{feature}</li>
-                  ))}
-                </ul>
-              </div>
+              {project.features[0] !== "" && (
+                <div className="mt-8">
+                  <h4 className="text-xl font-semibold mb-4 text-foreground flex items-center">
+                    <i className="ti-layout mr-3"></i>
+                    Features
+                  </h4>
+                  <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                    {project.features.map((feature, index) => (
+                      <li key={index}>{feature}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               {/* Additional Images */}
               {project.additionalImages &&
@@ -142,20 +145,12 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                   <div className="mt-8">
                     <h4 className="text-xl font-semibold mb-4 text-foreground flex items-center">
                       <i className="ti-gallery mr-3"></i>
-                      Additional Images
+                      Additional Images ({project.additionalImages.length})
                     </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {project.additionalImages.map((image, index) => (
-                        <ProjectImageDisplay
-                          key={index}
-                          image={image}
-                          alt={`${project.title} - Additional Image ${
-                            index + 1
-                          }`}
-                          className="w-full h-auto rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
-                        />
-                      ))}
-                    </div>
+                    <ImageGallery
+                      images={project.additionalImages}
+                      projectTitle={project.title}
+                    />
                   </div>
                 )}
             </div>
@@ -191,18 +186,22 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                       {project.framework}
                     </span>
                   </li>
-                  <li className="flex justify-between items-center">
-                    <span>Responsive:</span>
-                    <span className="text-muted-foreground">
-                      {project.responsive ? "yes" : "no"}
-                    </span>
-                  </li>
-                  <li className="flex justify-between items-center">
-                    <span>Browser Compatible:</span>
-                    <span className="text-muted-foreground">
-                      {project.browserCompatible ? "yes" : "no"}
-                    </span>
-                  </li>
+                  {project.responsive && (
+                    <li className="flex justify-between items-center">
+                      <span>Responsive:</span>
+                      <span className="text-muted-foreground">
+                        {project.responsive ? "yes" : "no"}
+                      </span>
+                    </li>
+                  )}
+                  {project.browserCompatible && (
+                    <li className="flex justify-between items-center">
+                      <span>Browser Compatible:</span>
+                      <span className="text-muted-foreground">
+                        {project.browserCompatible ? "yes" : "no"}
+                      </span>
+                    </li>
+                  )}
                   <li className="flex justify-between items-center">
                     <span>Documentation:</span>
                     <span className="text-muted-foreground">

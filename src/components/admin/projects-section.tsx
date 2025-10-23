@@ -6,13 +6,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Save, RefreshCw, Edit } from "lucide-react";
+import { Plus, Trash2, Save, RefreshCw, Edit, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { FileUpload } from "@/components/ui/file-upload";
 import { ProjectImageDisplay } from "@/components/ui/project-image";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { ProjectLoading } from "@/components/ui/project-loading";
-import { ProjectData, projectCategories, frameworks } from "@/types/project";
+import {
+  ProjectData,
+  projectCategories,
+  frameworks,
+  ProjectImage,
+} from "@/types/project";
+import {
+  SingleImagePreview,
+  ImagePreviewGrid,
+} from "@/components/ui/image-preview-grid";
 import {
   Form,
   FormControl,
@@ -53,6 +62,27 @@ export function ProjectsSection({
     fullPageImage: [] as File[],
     additionalImages: [] as File[],
   });
+
+  // Image state for existing images and new uploads
+  const [mainImageData, setMainImageData] = React.useState<{
+    file?: File;
+    existing?: ProjectImage;
+  } | null>(null);
+
+  const [fullPageImageData, setFullPageImageData] = React.useState<{
+    file?: File;
+    existing?: ProjectImage;
+  } | null>(null);
+
+  const [additionalImagesData, setAdditionalImagesData] = React.useState<
+    Array<{
+      id: string;
+      file?: File;
+      existing?: ProjectImage;
+      preview: string;
+      name: string;
+    }>
+  >([]);
 
   // Project form
   const projectForm = useForm<ProjectFormData>({
@@ -126,16 +156,33 @@ export function ProjectsSection({
       formData.append("features", JSON.stringify(data.features ?? []));
       formData.append("tags", JSON.stringify(data.tags));
 
-      // Add images
-      if (projectImages.mainImage[0]) {
-        formData.append("mainImage", projectImages.mainImage[0]);
+      // Add images - new implementation
+      if (mainImageData?.file) {
+        formData.append("mainImage", mainImageData.file);
       }
-      if (projectImages.fullPageImage[0]) {
-        formData.append("fullPageImage", projectImages.fullPageImage[0]);
+      if (fullPageImageData?.file) {
+        formData.append("fullPageImage", fullPageImageData.file);
       }
-      projectImages.additionalImages.forEach((file, index) => {
+
+      // Add additional images with their order
+      const additionalImageFiles = additionalImagesData
+        .filter((img) => img.file)
+        .map((img) => img.file!);
+
+      additionalImageFiles.forEach((file, index) => {
         formData.append(`additionalImage_${index}`, file);
       });
+
+      // Send existing image IDs to preserve order
+      if (editingProject) {
+        const existingAdditionalImages = additionalImagesData
+          .filter((img) => img.existing)
+          .map((img) => img.existing!.publicId);
+        formData.append(
+          "existingAdditionalImages",
+          JSON.stringify(existingAdditionalImages)
+        );
+      }
 
       const url = editingProject
         ? `/api/projects/${editingProject._id}`
@@ -216,6 +263,9 @@ export function ProjectsSection({
       fullPageImage: [],
       additionalImages: [],
     });
+    setMainImageData(null);
+    setFullPageImageData(null);
+    setAdditionalImagesData([]);
     setEditingProject(null);
   };
 
@@ -240,6 +290,29 @@ export function ProjectsSection({
       featured: project.featured,
       order: project.order,
     });
+
+    // Set existing images
+    setMainImageData(
+      project.mainImage ? { existing: project.mainImage } : null
+    );
+    setFullPageImageData(
+      project.fullPageImage ? { existing: project.fullPageImage } : null
+    );
+
+    // Set additional images with IDs for dragging
+    if (project.additionalImages && project.additionalImages.length > 0) {
+      setAdditionalImagesData(
+        project.additionalImages.map((img, index) => ({
+          id: `existing-${index}`,
+          existing: img,
+          preview: img.url,
+          name: img.filename,
+        }))
+      );
+    } else {
+      setAdditionalImagesData([]);
+    }
+
     setIsProjectFormOpen(true);
 
     // Scroll to project form section after state updates
@@ -775,50 +848,176 @@ export function ProjectsSection({
                 </div>
 
                 {/* Image Uploads */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-6">
+                  {/* Main Image */}
                   <div>
-                    <FormLabel>Main Image</FormLabel>
-                    <FileUpload
-                      label="Choose main image"
-                      value={projectImages.mainImage}
-                      onChange={(files) =>
-                        setProjectImages((prev) => ({
-                          ...prev,
-                          mainImage: files,
-                        }))
-                      }
-                      accept="image/*"
-                    />
+                    <FormLabel>Main Image *</FormLabel>
+                    {mainImageData && (
+                      <div className="mt-2 mb-2">
+                        <SingleImagePreview
+                          image={mainImageData}
+                          onRemove={() => setMainImageData(null)}
+                          label="Main Image"
+                        />
+                      </div>
+                    )}
+                    {!mainImageData && (
+                      <FileUpload
+                        label="Choose main image"
+                        value={[]}
+                        onChange={(files) => {
+                          if (files[0]) {
+                            setMainImageData({ file: files[0] });
+                          }
+                        }}
+                        accept="image/*"
+                      />
+                    )}
                   </div>
 
+                  {/* Full Page Image */}
                   <div>
                     <FormLabel>Full Page Image</FormLabel>
-                    <FileUpload
-                      label="Choose full page image"
-                      value={projectImages.fullPageImage}
-                      onChange={(files) =>
-                        setProjectImages((prev) => ({
-                          ...prev,
-                          fullPageImage: files,
-                        }))
-                      }
-                      accept="image/*"
-                    />
+                    {fullPageImageData && (
+                      <div className="mt-2 mb-2">
+                        <SingleImagePreview
+                          image={fullPageImageData}
+                          onRemove={() => setFullPageImageData(null)}
+                          label="Full Page Image"
+                        />
+                      </div>
+                    )}
+                    {!fullPageImageData && (
+                      <FileUpload
+                        label="Choose full page image"
+                        value={[]}
+                        onChange={(files) => {
+                          if (files[0]) {
+                            setFullPageImageData({ file: files[0] });
+                          }
+                        }}
+                        accept="image/*"
+                      />
+                    )}
                   </div>
 
+                  {/* Additional Images */}
                   <div>
-                    <FormLabel>Additional Images</FormLabel>
-                    <FileUpload
-                      label="Choose additional images"
-                      value={projectImages.additionalImages}
-                      onChange={(files) =>
-                        setProjectImages((prev) => ({
-                          ...prev,
-                          additionalImages: files,
-                        }))
-                      }
-                      accept="image/*"
-                    />
+                    <FormLabel>Additional Images (Multiple)</FormLabel>
+                    <p className="text-sm text-gray-500 mb-2">
+                      You can upload multiple images. Drag to reorder.
+                    </p>
+
+                    {additionalImagesData.length > 0 && (
+                      <div className="mt-2 mb-4">
+                        <ImagePreviewGrid
+                          images={additionalImagesData}
+                          onReorder={(newImages) => {
+                            setAdditionalImagesData(newImages);
+                          }}
+                          onRemove={(id) => {
+                            setAdditionalImagesData((prev) =>
+                              prev.filter((img) => img.id !== id)
+                            );
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    <div
+                      className="relative"
+                      onDragEnter={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.currentTarget.classList.add(
+                          "border-primary",
+                          "bg-primary/5"
+                        );
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      onDragLeave={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.currentTarget.classList.remove(
+                          "border-primary",
+                          "bg-primary/5"
+                        );
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.currentTarget.classList.remove(
+                          "border-primary",
+                          "bg-primary/5"
+                        );
+
+                        const files = e.dataTransfer.files;
+                        if (files && files.length > 0) {
+                          const newImages = Array.from(files)
+                            .filter((file) => file.type.startsWith("image/"))
+                            .map((file, index) => ({
+                              id: `new-${Date.now()}-${index}`,
+                              file,
+                              preview: URL.createObjectURL(file),
+                              name: file.name,
+                            }));
+
+                          if (newImages.length > 0) {
+                            setAdditionalImagesData((prev) => [
+                              ...prev,
+                              ...newImages,
+                            ]);
+                          }
+                        }
+                      }}
+                    >
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(e) => {
+                          const files = e.target.files;
+                          if (files && files.length > 0) {
+                            const newImages = Array.from(files).map(
+                              (file, index) => ({
+                                id: `new-${Date.now()}-${index}`,
+                                file,
+                                preview: URL.createObjectURL(file),
+                                name: file.name,
+                              })
+                            );
+                            setAdditionalImagesData((prev) => [
+                              ...prev,
+                              ...newImages,
+                            ]);
+                            // Reset the input so the same file can be selected again if needed
+                            e.target.value = "";
+                          }
+                        }}
+                        className="hidden"
+                        id="additional-images-input"
+                      />
+                      <label
+                        htmlFor="additional-images-input"
+                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-primary transition-colors bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      >
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <Upload className="w-10 h-10 mb-2 text-gray-400" />
+                          <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                            <span className="font-semibold">
+                              Click to upload
+                            </span>{" "}
+                            or drag and drop
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            PNG, JPG, GIF up to 10MB (multiple files)
+                          </p>
+                        </div>
+                      </label>
+                    </div>
                   </div>
                 </div>
 

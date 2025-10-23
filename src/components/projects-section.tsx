@@ -12,7 +12,7 @@ interface ProjectsSectionProps {
 
 export async function ProjectsSection({
   featured = true,
-  limit = 6,
+  limit = 100,
 }: ProjectsSectionProps) {
   const projectService = new ProjectService();
 

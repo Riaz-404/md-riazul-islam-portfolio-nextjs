@@ -129,6 +129,16 @@ export async function PUT(
       files.additionalImages = additionalImages;
     }
 
+    // Handle existing additional images (for preserving order/deletion)
+    const existingAdditionalImagesStr = formData.get(
+      "existingAdditionalImages"
+    );
+    if (existingAdditionalImagesStr) {
+      files.existingAdditionalImages = JSON.parse(
+        existingAdditionalImagesStr as string
+      );
+    }
+
     const updatedProject = await projectService.updateProject(
       id,
       updates,

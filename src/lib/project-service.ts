@@ -173,6 +173,7 @@ export class ProjectService {
         type: string;
         name: string;
       }>;
+      existingAdditionalImages?: string[]; // Public IDs of images to keep
     }
   ): Promise<ProjectData> {
     await mongoDBConnection();
@@ -255,23 +256,37 @@ export class ProjectService {
       }
 
       // Update additional images if provided
-      if (files?.additionalImages) {
-        // Delete old additional images from Cloudinary
-        if (currentProject.additionalImages) {
-          for (const img of currentProject.additionalImages) {
+      if (files?.additionalImages && files.additionalImages.length > 0) {
+        // If existingAdditionalImages is provided, filter current images to keep only those
+        let existingImages = currentProject.additionalImages || [];
+
+        if (files.existingAdditionalImages) {
+          // Keep only images with publicIds in the existingAdditionalImages array
+          existingImages = existingImages.filter((img: any) =>
+            files.existingAdditionalImages!.includes(img.publicId)
+          );
+
+          // Delete images that are not in the keep list
+          const imagesToDelete = (currentProject.additionalImages || []).filter(
+            (img: any) =>
+              !files.existingAdditionalImages!.includes(img.publicId)
+          );
+
+          for (const img of imagesToDelete) {
             if (img.publicId) {
               await CloudinaryService.deleteImage(img.publicId);
             }
           }
         }
 
+        // Upload new additional images
         const additionalImagesResults =
           await CloudinaryService.uploadMultipleImages(
             files.additionalImages,
             `projects/${projectSlug}`
           );
 
-        updateData.additionalImages = additionalImagesResults.map(
+        const newAdditionalImages = additionalImagesResults.map(
           (result, index) => ({
             filename: files.additionalImages![index].name,
             contentType: files.additionalImages![index].type,
@@ -279,6 +294,30 @@ export class ProjectService {
             publicId: result.publicId,
           })
         );
+
+        // Append new images to existing ones
+        updateData.additionalImages = [
+          ...existingImages,
+          ...newAdditionalImages,
+        ];
+      } else if (files?.existingAdditionalImages) {
+        // Only existing images, no new uploads - just reorder/filter
+        const existingImages = (currentProject.additionalImages || []).filter(
+          (img: any) => files.existingAdditionalImages!.includes(img.publicId)
+        );
+
+        // Delete images that are not in the keep list
+        const imagesToDelete = (currentProject.additionalImages || []).filter(
+          (img: any) => !files.existingAdditionalImages!.includes(img.publicId)
+        );
+
+        for (const img of imagesToDelete) {
+          if (img.publicId) {
+            await CloudinaryService.deleteImage(img.publicId);
+          }
+        }
+
+        updateData.additionalImages = existingImages;
       }
 
       const updatedProject = (await Project.findByIdAndUpdate(id, updateData, {
