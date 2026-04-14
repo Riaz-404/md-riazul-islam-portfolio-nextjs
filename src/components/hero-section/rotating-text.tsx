@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { AnimatePresence } from "motion/react";
 import { MotionSpan } from "../motion/motion-html-element";
 import { RotatingText as RotatingTextType } from "@/types/hero";
 
@@ -9,15 +10,13 @@ interface RotatingTextProps {
 }
 
 export function RotatingText({ rotatingTexts }: RotatingTextProps) {
-  const [currentTextIndex, setCurrentTextIndex] = React.useState(0);
+  const [current, setCurrent] = React.useState(0);
 
   React.useEffect(() => {
-    if (rotatingTexts.length === 0) return;
-
+    if (rotatingTexts.length <= 1) return;
     const interval = setInterval(() => {
-      setCurrentTextIndex((prev) => (prev + 1) % rotatingTexts.length);
-    }, 3000);
-
+      setCurrent((prev) => (prev + 1) % rotatingTexts.length);
+    }, 3200);
     return () => clearInterval(interval);
   }, [rotatingTexts.length]);
 
@@ -28,15 +27,22 @@ export function RotatingText({ rotatingTexts }: RotatingTextProps) {
   }
 
   return (
-    <MotionSpan
-      key={currentTextIndex}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.5 }}
-      className="text-primary inline-block"
-    >
-      {rotatingTexts[currentTextIndex]?.text || "Developer"}
-    </MotionSpan>
+    <span className="inline-block overflow-hidden align-bottom h-[1.4em]">
+      <AnimatePresence mode="wait" initial={false}>
+        <MotionSpan
+          key={current}
+          initial={{ y: "100%", opacity: 0 }}
+          animate={{ y: "0%", opacity: 1 }}
+          exit={{ y: "-100%", opacity: 0 }}
+          transition={{
+            duration: 0.35,
+            ease: [0.25, 0.46, 0.45, 0.94],
+          }}
+          className="text-primary inline-block"
+        >
+          {rotatingTexts[current]?.text || "Developer"}
+        </MotionSpan>
+      </AnimatePresence>
+    </span>
   );
 }

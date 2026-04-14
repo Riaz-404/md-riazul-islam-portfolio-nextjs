@@ -1,37 +1,34 @@
 "use client";
 
 import * as React from "react";
-import { motion } from "motion/react";
-import { Menu } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { Menu, X, ArrowUpRight } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { SocialLinkButton } from "@/components/shared/social-link-button";
 import {
   SocialLink,
   staticNavigationLinks,
-  StaticNavigationLink,
+  defaultNavigationData,
 } from "@/types/navigation";
 
 export function Navigation() {
   const [isScrolled, setIsScrolled] = React.useState(false);
+  const [isMobileOpen, setIsMobileOpen] = React.useState(false);
   const [socialLinks, setSocialLinks] = React.useState<SocialLink[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
   const pathname = usePathname();
   const router = useRouter();
 
-  // Fetch social links data
   React.useEffect(() => {
     const fetchSocialLinks = async () => {
       try {
         const response = await fetch("/api/navigation");
         if (response.ok) {
           const data = await response.json();
-          // Ensure plain objects
-          const plainSocialLinks =
-            data.socialLinks?.map((link: any) => ({
+          const plainLinks =
+            data.socialLinks?.map((link: SocialLink) => ({
               id: link.id,
               href: link.href,
               icon: link.icon,
@@ -39,174 +36,223 @@ export function Navigation() {
               order: link.order,
               isActive: link.isActive,
             })) || [];
-          setSocialLinks(plainSocialLinks);
+          setSocialLinks(plainLinks);
         } else {
-          throw new Error("Failed to fetch social links");
+          throw new Error("Failed");
         }
-      } catch (error) {
-        console.error("Error fetching social links:", error);
-        // Set default social links as fallback
-        const { defaultNavigationData } = await import("@/types/navigation");
+      } catch {
         setSocialLinks(defaultNavigationData.socialLinks);
-      } finally {
-        setIsLoading(false);
       }
     };
-
     fetchSocialLinks();
   }, []);
 
   React.useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setIsScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  React.useEffect(() => {
+    document.body.style.overflow = isMobileOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileOpen]);
+
   const handleNavigation = (href: string) => {
-    // External/page routes (not anchor links)
+    setIsMobileOpen(false);
     if (!href.startsWith("#")) {
       router.push(href);
       return;
     }
-
     if (pathname !== "/") {
       router.push("/");
+      setTimeout(() => {
+        document
+          .querySelector(href)
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+      return;
     }
-
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
+    document
+      .querySelector(href)
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  // if (isLoading) {
-  //   return (
-  //     <nav className="fixed top-0 w-full z-50 bg-transparent">
-  //       <div className="container">
-  //         <div className="flex items-center justify-between h-16 lg:h-20">
-  //           <div className="w-6 h-6 bg-gray-300 animate-pulse rounded"></div>
-  //           <div className="hidden lg:flex space-x-8">
-  //             {[1, 2, 3, 4, 5].map((i) => (
-  //               <div
-  //                 key={i}
-  //                 className="w-16 h-4 bg-gray-300 animate-pulse rounded"
-  //               ></div>
-  //             ))}
-  //           </div>
-  //           <ThemeToggle />
-  //         </div>
-  //       </div>
-  //     </nav>
-  //   );
-  // }
-
-  // Filter and sort active social links
   const activeSocialLinks = socialLinks
-    .filter((link: SocialLink) => link.isActive)
-    .sort((a: SocialLink, b: SocialLink) => a.order - b.order);
+    .filter((l) => l.isActive)
+    .sort((a, b) => a.order - b.order);
+
   return (
-    <motion.nav
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-background/95 backdrop-blur-md border-b border-border"
-          : "bg-transparent"
-      }`}
-    >
-      <div className="container">
-        <div className="flex items-center justify-between h-16 lg:h-20">
-          {/* Mobile Menu */}
-          <div className="lg:hidden">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-10 w-10">
-                  <Menu className="h-6 w-6" />
-                  <span className="sr-only">Toggle menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-80">
-                <div className="flex flex-col space-y-6 mt-8">
-                  <nav className="flex flex-col space-y-4">
-                    {staticNavigationLinks.map((link: StaticNavigationLink) => (
-                      <button
-                        key={link.id}
-                        className="relative text-foreground hover:text-primary transition-colors duration-200 font-medium text-lg py-3 group text-center"
-                        onClick={() => handleNavigation(link.href)}
-                      >
-                        {link.label}
-                        {/* Bottom border on hover */}
-                        <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-primary transition-all duration-200 group-hover:w-full"></span>
-                      </button>
-                    ))}
-                  </nav>
+    <>
+      <motion.header
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled
+            ? "bg-background/80 backdrop-blur-xl border-b border-border/60 shadow-[0_1px_0_0_var(--border)]"
+            : "bg-transparent"
+        }`}
+      >
+        <div className="max-w-6xl mx-auto px-5 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Brand monogram */}
+            <button
+              onClick={() => handleNavigation("#home")}
+              className="flex items-center gap-2.5 group cursor-pointer"
+              aria-label="Go to home"
+            >
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm tracking-tight transition-all duration-200 group-hover:scale-110 group-hover:shadow-[0_0_16px_var(--primary)] shadow-sm">
+                RI
+              </div>
+              <span className="hidden sm:block font-semibold text-sm text-foreground/70 group-hover:text-foreground transition-colors duration-200">
+                Riazul Islam
+              </span>
+            </button>
 
-                  {/* Social Links */}
-                  <div className="flex justify-center space-x-4 pt-6 border-t border-border">
-                    {activeSocialLinks.map((social: SocialLink) => (
-                      <SocialLinkButton key={social.id} link={social} />
-                    ))}
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center justify-between w-full">
-            {/* Navigation Links */}
-            <nav className="flex items-center space-x-4">
-              {staticNavigationLinks.map((link: StaticNavigationLink) => (
-                <motion.button
+            {/* Desktop navigation links */}
+            <nav className="hidden lg:flex items-center gap-0.5">
+              {staticNavigationLinks.map((link) => (
+                <button
                   key={link.id}
                   onClick={() => handleNavigation(link.href)}
-                  className="relative text-foreground hover:text-primary transition-colors duration-200 font-medium cursor-pointer pb-2 group text-lg px-4 py-2"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  className="px-3.5 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 rounded-lg hover:bg-muted/60 cursor-pointer"
                 >
                   {link.label}
-                  {/* Bottom border on hover */}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-200 group-hover:w-full"></span>
-                </motion.button>
+                </button>
               ))}
             </nav>
 
-            {/* Right side - Social Links & Theme Toggle */}
-            <div className="flex items-center space-x-4">
-              {/* Social Links */}
-              <div className="flex items-center space-x-2">
-                {activeSocialLinks.map((social: SocialLink) => (
-                  <motion.div
+            {/* Right cluster */}
+            <div className="flex items-center gap-2">
+              {/* Social icons — desktop */}
+              <div className="hidden lg:flex items-center gap-0.5">
+                {activeSocialLinks.slice(0, 3).map((social) => (
+                  <div
                     key={social.id}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
+                    className="opacity-50 hover:opacity-100 transition-opacity duration-200"
                   >
                     <SocialLinkButton
                       link={social}
-                      className="h-9 w-9 rounded-full"
+                      className="h-8 w-8 rounded-lg"
                     />
-                  </motion.div>
+                  </div>
                 ))}
               </div>
 
-              {/* Theme Toggle */}
               <ThemeToggle />
+
+              <Button
+                size="sm"
+                className="hidden lg:inline-flex items-center gap-1.5 h-8 px-3.5 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 shadow-sm"
+                onClick={() => handleNavigation("#contact")}
+              >
+                Hire Me
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </Button>
+
+              {/* Mobile hamburger */}
+              <button
+                className="lg:hidden p-2 -mr-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer"
+                onClick={() => setIsMobileOpen(!isMobileOpen)}
+                aria-label={isMobileOpen ? "Close menu" : "Open menu"}
+              >
+                {isMobileOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
+              </button>
             </div>
           </div>
-
-          {/* Mobile Theme Toggle */}
-          <div className="lg:hidden">
-            <ThemeToggle />
-          </div>
         </div>
-      </div>
-    </motion.nav>
+      </motion.header>
+
+      {/* Mobile fullscreen menu */}
+      <AnimatePresence>
+        {isMobileOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-40 lg:hidden"
+          >
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-background/60 backdrop-blur-sm"
+              onClick={() => setIsMobileOpen(false)}
+            />
+
+            {/* Panel */}
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{
+                duration: 0.28,
+                ease: [0.25, 0.46, 0.45, 0.94],
+              }}
+              className="absolute right-0 top-0 bottom-0 w-72 bg-background border-l border-border/60 flex flex-col shadow-2xl"
+            >
+              {/* Panel header */}
+              <div className="flex items-center justify-between p-5 border-b border-border/60">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm">
+                    RI
+                  </div>
+                  <span className="font-semibold text-sm">Riazul Islam</span>
+                </div>
+                <button
+                  onClick={() => setIsMobileOpen(false)}
+                  className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Nav links */}
+              <nav className="flex-1 p-4 space-y-0.5 overflow-y-auto">
+                {staticNavigationLinks.map((link, i) => (
+                  <motion.button
+                    key={link.id}
+                    initial={{ opacity: 0, x: 16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.04, duration: 0.2 }}
+                    onClick={() => handleNavigation(link.href)}
+                    className="w-full text-left px-4 py-3 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-xl transition-colors cursor-pointer"
+                  >
+                    {link.label}
+                  </motion.button>
+                ))}
+              </nav>
+
+              {/* Panel footer */}
+              <div className="p-5 border-t border-border/60 space-y-4">
+                <div className="flex items-center gap-2">
+                  {activeSocialLinks.map((social) => (
+                    <div
+                      key={social.id}
+                      className="opacity-60 hover:opacity-100 transition-opacity"
+                    >
+                      <SocialLinkButton link={social} />
+                    </div>
+                  ))}
+                </div>
+                <Button
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+                  onClick={() => handleNavigation("#contact")}
+                >
+                  Hire Me
+                  <ArrowUpRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

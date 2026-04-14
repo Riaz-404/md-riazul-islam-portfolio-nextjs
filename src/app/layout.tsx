@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Work_Sans, Roboto, Poppins } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
 
 import { ThemeProvider } from "@/components/shared/theme-provider";
@@ -7,22 +7,19 @@ import { ScrollToTop } from "@/components/shared/scroll-to-top";
 import { Toaster } from "sonner";
 import { generateMetadata as generateDynamicMetadata } from "@/lib/metadata-service";
 
-const workSans = Work_Sans({
-  variable: "--font-work-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  display: "swap",
 });
 
-const roboto = Roboto({
-  variable: "--font-roboto",
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
-
+// Kept for admin panel compatibility
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -37,19 +34,20 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Font Awesome */}
+        {/* Font Awesome — kept for admin panel icon compatibility */}
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
         />
-        {/* Themify Icons */}
+        {/* Themify Icons — kept for admin panel icon compatibility */}
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/themify-icons@0.1.2/css/themify-icons.css"
         />
       </head>
       <body
-        className={`${workSans.variable} ${roboto.variable} ${poppins.variable} font-roboto antialiased overflow-x-hidden`}
+        className={`${inter.variable} ${poppins.variable} antialiased overflow-x-hidden`}
+        style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
       >
         <ThemeProvider
           attribute="class"

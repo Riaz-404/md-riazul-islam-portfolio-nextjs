@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Check } from "lucide-react";
 import { AboutData, defaultAboutData } from "@/types/about";
 import { SocialLink, defaultNavigationData } from "@/types/navigation";
 import { getAboutData as getAboutDataFromDB } from "@/lib/about-service";
@@ -9,33 +8,11 @@ import {
   MotionP,
 } from "@/components/motion/motion-html-element";
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      delayChildren: 0.3,
-      staggerChildren: 0.2,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    transition: {
-      duration: 0.6,
-    },
-  },
-};
+const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
 async function getAboutData(): Promise<AboutData> {
   try {
-    // Use the service function directly instead of making HTTP request
-    const aboutData = await getAboutDataFromDB();
-    return aboutData;
+    return await getAboutDataFromDB();
   } catch (error) {
     console.error("Error fetching about data:", error);
     return defaultAboutData;
@@ -49,8 +26,6 @@ async function getSocialLinks(): Promise<SocialLink[]> {
     const links =
       navigation?.socialLinks?.filter((link: SocialLink) => link.isActive) ||
       defaultNavigationData.socialLinks;
-
-    // Ensure plain objects with all required fields
     return links.map((link) => ({
       id: link.id,
       href: link.href,
@@ -59,102 +34,144 @@ async function getSocialLinks(): Promise<SocialLink[]> {
       order: link.order,
       isActive: link.isActive,
     }));
-  } catch (error) {
-    console.error("Error fetching social links:", error);
-    return defaultNavigationData.socialLinks.filter((link) => link.isActive);
+  } catch {
+    return defaultNavigationData.socialLinks.filter((l) => l.isActive);
   }
 }
+
+// Category accent colors for visual variety
+const CATEGORY_COLORS = [
+  "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+  "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20",
+  "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+  "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
+  "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+];
 
 export async function AboutSection() {
   const aboutData = await getAboutData();
 
   return (
-    <section id="about" className="py-20 lg:py-28">
-      <div className="container">
+    <section id="about" className="py-24 lg:py-32">
+      <div className="max-w-6xl mx-auto px-5 lg:px-8">
+        {/* Section header */}
         <MotionDiv
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="space-y-16 max-w-6xl mx-auto"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.55, ease }}
+          className="mb-16 lg:mb-20"
         >
-          {/* Myself Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12">
-            <MotionDiv variants={itemVariants} className="lg:col-span-1">
-              <MotionH2 className="text-2xl lg:text-3xl font-bold flex items-center gap-3">
-                <span className="text-primary">—</span>
-                {aboutData.myself.title}
-              </MotionH2>
-            </MotionDiv>
+          <MotionP
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4 }}
+            className="text-xs font-semibold uppercase tracking-[0.12em] text-primary mb-3"
+          >
+            Who I am
+          </MotionP>
+          <MotionH2
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.08, ease }}
+            className="text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground leading-tight max-w-xl"
+          >
+            {aboutData.myself.title}
+          </MotionH2>
+        </MotionDiv>
 
+        {/* Bio + Skills grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+          {/* Bio column */}
+          <div className="space-y-5">
+            {aboutData.myself.description.map((paragraph, i) => (
+              <MotionP
+                key={i}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1, ease }}
+                className="text-muted-foreground text-base lg:text-[17px] leading-[1.75]"
+                dangerouslySetInnerHTML={{ __html: paragraph }}
+              />
+            ))}
+
+            {/* Decorative stat cards */}
             <MotionDiv
-              variants={itemVariants}
-              className="lg:col-span-3 space-y-6"
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.3, ease }}
+              className="grid grid-cols-2 gap-3 pt-4"
             >
-              {aboutData.myself.description.map((paragraph, index) => (
-                <MotionP
-                  key={index}
-                  variants={itemVariants}
-                  className="text-muted-foreground text-lg leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: paragraph }}
-                />
+              {[
+                { value: "5+", label: "Years Experience" },
+                { value: "20+", label: "Projects Shipped" },
+                { value: "10+", label: "Happy Clients" },
+                { value: "100%", label: "Remote Ready" },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-xl border border-border/60 bg-card p-4 hover:border-primary/30 transition-colors duration-200"
+                >
+                  <p className="text-2xl font-extrabold text-foreground tracking-tight">
+                    {item.value}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1 font-medium">
+                    {item.label}
+                  </p>
+                </div>
               ))}
             </MotionDiv>
           </div>
 
-          {/* Skills Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12">
-            <MotionDiv variants={itemVariants} className="lg:col-span-1">
-              <MotionH2 className="text-2xl lg:text-3xl font-bold flex items-center gap-3">
-                <span className="text-primary">—</span>
+          {/* Skills column */}
+          <div className="space-y-8">
+            <div>
+              <MotionP
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4 }}
+                className="text-xs font-semibold uppercase tracking-[0.12em] text-primary mb-5"
+              >
                 {aboutData.skills.title}
-              </MotionH2>
-            </MotionDiv>
+              </MotionP>
 
-            <MotionDiv variants={itemVariants} className="lg:col-span-3">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {aboutData.skills.categories.map((category, categoryIndex) => (
+              <div className="space-y-7">
+                {aboutData.skills.categories.map((category, catIdx) => (
                   <MotionDiv
                     key={category.id}
-                    variants={itemVariants}
-                    className="space-y-4"
+                    initial={{ opacity: 0, y: 12 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.45, delay: catIdx * 0.1, ease }}
+                    className="space-y-3"
                   >
-                    <h3 className="text-lg font-semibold text-foreground mb-4">
+                    <h3 className="text-sm font-semibold text-foreground tracking-wide">
                       {category.name}
                     </h3>
-                    <ul className="space-y-4">
-                      {category.items.map((skill, skillIndex) => (
-                        <MotionDiv
+                    <div className="flex flex-wrap gap-2">
+                      {category.items.map((skill) => (
+                        <span
                           key={skill.id}
-                          variants={itemVariants}
-                          className="flex items-start gap-3"
-                          initial={{ opacity: 0, x: -20 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          viewport={{ once: true }}
-                          transition={{
-                            duration: 0.5,
-                            delay: categoryIndex * 0.1 + skillIndex * 0.05,
-                          }}
+                          className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border transition-all duration-200 hover:scale-105 ${
+                            CATEGORY_COLORS[catIdx % CATEGORY_COLORS.length]
+                          }`}
+                          title={skill.description}
                         >
-                          <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                          <div className="space-y-1">
-                            <span className="text-foreground font-medium">
-                              {skill.name}
-                            </span>
-                            <span className="text-muted-foreground">
-                              {" "}
-                              - {skill.description}
-                            </span>
-                          </div>
-                        </MotionDiv>
+                          {skill.name}
+                        </span>
                       ))}
-                    </ul>
+                    </div>
                   </MotionDiv>
                 ))}
               </div>
-            </MotionDiv>
+            </div>
           </div>
-        </MotionDiv>
+        </div>
       </div>
     </section>
   );

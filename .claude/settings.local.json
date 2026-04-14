@@ -5,7 +5,8 @@
       "Bash(npx tsc:*)",
       "Bash(pnpm dlx:*)",
       "Bash(echo \"Exit: $?\")",
-      "Bash(pnpm tsc:*)"
+      "Bash(pnpm tsc:*)",
+      "Bash(pnpm build:*)"
     ]
   }
 }
