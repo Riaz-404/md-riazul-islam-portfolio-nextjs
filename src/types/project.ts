@@ -27,6 +27,7 @@ export interface ProjectData {
   fullPageImage?: ProjectImage;
   additionalImages?: ProjectImage[];
   featured: boolean;
+  isActive: boolean;
   order: number;
   createdAt?: Date;
   updatedAt?: Date;

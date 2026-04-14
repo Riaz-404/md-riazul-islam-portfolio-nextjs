@@ -36,6 +36,7 @@ export interface IProject extends Document {
     publicId: string;
   }>;
   featured: boolean;
+  isActive: boolean;
   order: number;
 }
 
@@ -152,6 +153,10 @@ const ProjectSchema = new Schema<IProject>(
     featured: {
       type: Boolean,
       default: false,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
     },
     order: {
       type: Number,

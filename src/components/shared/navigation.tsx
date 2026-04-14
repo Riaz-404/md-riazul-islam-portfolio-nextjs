@@ -66,6 +66,12 @@ export function Navigation() {
   }, []);
 
   const handleNavigation = (href: string) => {
+    // External/page routes (not anchor links)
+    if (!href.startsWith("#")) {
+      router.push(href);
+      return;
+    }
+
     if (pathname !== "/") {
       router.push("/");
     }

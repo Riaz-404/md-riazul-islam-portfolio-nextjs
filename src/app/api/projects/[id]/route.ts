@@ -164,6 +164,25 @@ export async function PUT(
   }
 }
 
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const { isActive } = await request.json();
+    const updated = await projectService.toggleActive(id, isActive);
+    revalidatePath("/api/projects");
+    revalidatePath("/api/projects/featured");
+    return NextResponse.json({ success: true, data: updated });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, message: "Failed to update project" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

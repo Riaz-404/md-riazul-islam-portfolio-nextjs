@@ -2,41 +2,22 @@ import { mongoDBConnection } from "@/databases/db-connection";
 import Project from "@/models/Project";
 import { ProjectData, ProjectFormData } from "@/types/project";
 import { CloudinaryService } from "./cloudinary-service";
+import { toPlain } from "./serialize";
 
 export class ProjectService {
-  // Helper method to serialize MongoDB documents for client components
   private serializeProject(project: any): ProjectData {
-    return JSON.parse(
-      JSON.stringify(project, (key, value) => {
-        // Convert ObjectId instances to strings
-        if (value && typeof value === "object" && value._id) {
-          return {
-            ...value,
-            _id: value._id.toString(),
-          };
-        }
-        // Handle top-level _id
-        if (key === "_id" && value && typeof value.toString === "function") {
-          return value.toString();
-        }
-        return value;
-      })
-    );
+    return toPlain(project);
   }
 
-  async getProjects(): Promise<ProjectData[]> {
+  async getProjects(includeInactive = false): Promise<ProjectData[]> {
     await mongoDBConnection();
 
     try {
-      const projects = await Project.find({})
+      const query = includeInactive ? {} : { isActive: { $ne: false } };
+      const projects = await Project.find(query)
         .sort({ featured: -1, order: 1, createdAt: -1 })
         .lean();
-      return projects.map((project: any) =>
-        this.serializeProject({
-          ...project,
-          _id: project._id.toString(),
-        })
-      );
+      return projects.map((project: any) => this.serializeProject(project));
     } catch (error) {
       console.error("Error fetching projects:", error);
       throw new Error("Failed to fetch projects");
@@ -53,10 +34,7 @@ export class ProjectService {
         return null;
       }
 
-      return this.serializeProject({
-        ...project,
-        _id: project._id.toString(),
-      });
+      return this.serializeProject(project);
     } catch (error) {
       console.error("Error fetching project by slug:", error);
       throw new Error("Failed to fetch project");
@@ -146,12 +124,7 @@ export class ProjectService {
       });
 
       const savedProject = await project.save();
-      const savedProjectObj = savedProject.toObject();
-
-      return {
-        ...savedProjectObj,
-        _id: savedProjectObj._id.toString(),
-      };
+      return this.serializeProject(savedProject.toObject());
     } catch (error) {
       console.error("Error creating project:", error);
       throw error;
@@ -328,14 +301,18 @@ export class ProjectService {
         throw new Error("Project not found");
       }
 
-      return {
-        ...updatedProject,
-        _id: updatedProject._id.toString(),
-      };
+      return this.serializeProject(updatedProject);
     } catch (error) {
       console.error("Error updating project:", error);
       throw error;
     }
+  }
+
+  async toggleActive(id: string, isActive: boolean): Promise<ProjectData | null> {
+    await mongoDBConnection();
+    const updated: any = await Project.findByIdAndUpdate(id, { isActive }, { new: true }).lean();
+    if (!updated) return null;
+    return this.serializeProject(updated);
   }
 
   async deleteProject(id: string): Promise<void> {
@@ -387,36 +364,12 @@ export class ProjectService {
     await mongoDBConnection();
 
     try {
-      const projects = await Project.find({ featured: true })
+      const projects = await Project.find({ featured: true, isActive: { $ne: false } })
         .sort({ order: 1, createdAt: -1 })
         .limit(6)
         .lean();
 
-      return projects.map((project: any) => ({
-        ...project,
-        _id: project._id.toString(),
-        mainImage: {
-          ...project.mainImage,
-          // Only add base64 data if it exists (legacy format)
-          ...(project.mainImage?.data
-            ? { data: project.mainImage.data.toString("base64") }
-            : {}),
-        },
-        fullPageImage: project.fullPageImage
-          ? {
-              ...project.fullPageImage,
-              // Only add base64 data if it exists (legacy format)
-              ...(project.fullPageImage?.data
-                ? { data: project.fullPageImage.data.toString("base64") }
-                : {}),
-            }
-          : undefined,
-        additionalImages: project.additionalImages?.map((img: any) => ({
-          ...img,
-          // Only add base64 data if it exists (legacy format)
-          ...(img?.data ? { data: img.data.toString("base64") } : {}),
-        })),
-      }));
+      return projects.map((project: any) => this.serializeProject(project));
     } catch (error) {
       console.error("Error fetching featured projects:", error);
       throw new Error("Failed to fetch featured projects");

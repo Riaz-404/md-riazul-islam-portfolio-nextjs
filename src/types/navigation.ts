@@ -30,7 +30,8 @@ export const staticNavigationLinks: StaticNavigationLink[] = [
   { id: "2", label: "About", href: "#about", order: 2 },
   { id: "3", label: "Expertise", href: "#expertise", order: 3 },
   { id: "4", label: "Projects", href: "#projects", order: 4 },
-  { id: "5", label: "Contact", href: "#contact", order: 5 },
+  { id: "5", label: "Blog", href: "/blog", order: 5 },
+  { id: "6", label: "Contact", href: "#contact", order: 6 },
 ];
 
 // Default navigation data (only social links)

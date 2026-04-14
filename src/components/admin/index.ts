@@ -5,4 +5,6 @@ export { SkillsSection } from "./skills-section";
 export { ExpertiseSection } from "./expertise-section";
 export { ProjectsSection } from "./projects-section";
 export { AdminCacheSection } from "./cache-section";
+export { BlogSection } from "./blog-section";
+export { PublicationsSection } from "./publications-section";
 export * from "./schemas";

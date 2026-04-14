@@ -8,6 +8,8 @@ import { ExpertiseData } from "@/types/expertise";
 import { HeroData, defaultHeroData } from "@/types/hero";
 import { NavigationData, defaultNavigationData } from "@/types/navigation";
 import { ProjectData } from "@/types/project";
+import { BlogData } from "@/types/blog";
+import { PublicationData } from "@/types/publication";
 import {
   HeroSection,
   NavigationSection,
@@ -16,6 +18,8 @@ import {
   ExpertiseSection,
   ProjectsSection,
   AdminCacheSection,
+  BlogSection,
+  PublicationsSection,
 } from "@/components/admin";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { ProtectedRoute } from "@/components/auth/protected-route";
@@ -34,9 +38,13 @@ function AdminPanel() {
     ...defaultNavigationData,
   });
   const [projects, setProjects] = React.useState<ProjectData[]>([]);
+  const [blogs, setBlogs] = React.useState<BlogData[]>([]);
+  const [publications, setPublications] = React.useState<PublicationData[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSaving, ] = React.useState(false);
   const [isProjectsLoading, setIsProjectsLoading] = React.useState(false);
+  const [isBlogsLoading, setIsBlogsLoading] = React.useState(false);
+  const [isPublicationsLoading, setIsPublicationsLoading] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState("hero");
 
   // Fetch data on component mount
@@ -46,6 +54,8 @@ function AdminPanel() {
     fetchProjects();
     fetchHeroData();
     fetchNavigationData();
+    fetchBlogs();
+    fetchPublications();
   }, []);
 
   const fetchAboutData = async () => {
@@ -79,7 +89,7 @@ function AdminPanel() {
   const fetchProjects = async () => {
     setIsProjectsLoading(true);
     try {
-      const response = await fetch("/api/projects");
+      const response = await fetch("/api/projects?all=true");
       if (response.ok) {
         const result = await response.json();
         if (result.success) {
@@ -105,6 +115,32 @@ function AdminPanel() {
       console.error("Failed to fetch hero data:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchBlogs = async () => {
+    setIsBlogsLoading(true);
+    try {
+      const res = await fetch("/api/blogs?all=true");
+      const result = await res.json();
+      if (result.success) setBlogs(result.data);
+    } catch (error) {
+      console.error("Failed to fetch blogs:", error);
+    } finally {
+      setIsBlogsLoading(false);
+    }
+  };
+
+  const fetchPublications = async () => {
+    setIsPublicationsLoading(true);
+    try {
+      const res = await fetch("/api/publications?all=true");
+      const result = await res.json();
+      if (result.success) setPublications(result.data);
+    } catch (error) {
+      console.error("Failed to fetch publications:", error);
+    } finally {
+      setIsPublicationsLoading(false);
     }
   };
 
@@ -207,6 +243,19 @@ function AdminPanel() {
                 Projects
               </TabsTrigger>
               <TabsTrigger
+                value="blog"
+                className="text-xs sm:text-sm flex-shrink-0"
+              >
+                Blog
+              </TabsTrigger>
+              <TabsTrigger
+                value="publications"
+                className="text-xs sm:text-sm flex-shrink-0"
+              >
+                <span className="hidden sm:inline">Publications</span>
+                <span className="sm:hidden">Pubs</span>
+              </TabsTrigger>
+              <TabsTrigger
                 value="admin"
                 className="text-xs sm:text-sm flex-shrink-0"
               >
@@ -267,6 +316,24 @@ function AdminPanel() {
               onProjectsChange={fetchProjects}
               isProjectsLoading={isProjectsLoading}
               isSaving={isSaving}
+            />
+          </TabsContent>
+
+          {/* Blog Tab */}
+          <TabsContent value="blog" className="space-y-4">
+            <BlogSection
+              blogs={blogs}
+              onBlogsChange={fetchBlogs}
+              isBlogsLoading={isBlogsLoading}
+            />
+          </TabsContent>
+
+          {/* Publications Tab */}
+          <TabsContent value="publications" className="space-y-4">
+            <PublicationsSection
+              publications={publications}
+              onPublicationsChange={fetchPublications}
+              isLoading={isPublicationsLoading}
             />
           </TabsContent>
 
