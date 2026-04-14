@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(npx tsc:*)",
+      "Bash(pnpm dlx:*)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(pnpm tsc:*)"
+    ]
+  }
+}

@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { ProjectImageDisplay } from "@/components/ui/project-image";
 import { ProjectData } from "@/types/project";
 import { Button } from "@/components/ui/button";
 import { ProjectService } from "@/lib/project-service";
-import { MotionDiv } from "@/components/motion/motion-html-element";
+import { ProjectsClientSection } from "@/components/projects-client-section";
 
 interface ProjectsSectionProps {
   featured?: boolean;
@@ -22,13 +21,11 @@ export async function ProjectsSection({
     if (featured) {
       projects = await projectService.getFeaturedProjects();
     } else {
-      // Get all projects
       const allProjects = await projectService.getProjects();
       projects = limit && limit > 0 ? allProjects.slice(0, limit) : allProjects;
     }
   } catch (error) {
     console.error("Error fetching projects:", error);
-    // Return error state but still show the section structure
     return (
       <section
         className="section-padding bg-background text-foreground"
@@ -36,10 +33,12 @@ export async function ProjectsSection({
       >
         <div className="container-custom content-constrained">
           <div className="text-center mb-12">
-            <span className="mb-0 text-uppercase text-sm text-muted-foreground">
-              <i className="ti-minus mr-2"></i>What I have done
+            <span className="text-sm text-muted-foreground uppercase tracking-widest">
+              What I have done
             </span>
-            <h2 className="title text-foreground">Projects</h2>
+            <h2 className="text-3xl font-bold mt-2 text-foreground">
+              Projects
+            </h2>
           </div>
           <div className="text-center py-12">
             <p className="text-destructive">
@@ -55,80 +54,35 @@ export async function ProjectsSection({
     <section
       className="section-padding bg-background text-foreground"
       id="projects"
-      data-aos="fade-up"
     >
       <div className="container-custom content-constrained">
-        <div className="text-center mb-12">
-          <span className="mb-0 text-uppercase text-sm text-muted-foreground">
-            <i className="ti-minus mr-2"></i>What I have done
+        <div className="text-center mb-10">
+          <span className="text-sm text-muted-foreground uppercase tracking-widest">
+            What I have done
           </span>
-          <h2 className="title text-foreground">Projects</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold mt-2 text-foreground">
+            Projects
+          </h2>
+          <p className="text-muted-foreground mt-3 max-w-xl mx-auto text-sm sm:text-base">
+            A selection of projects I&apos;ve built — from full-stack web apps
+            to modern e-commerce platforms.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {projects.map((project, index) => (
-            <MotionDiv
-              key={project._id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-            >
-              <div className="project-card bg-card text-card-foreground border border-border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 h-full">
-                <Link
-                  href={`/projects/${project.slug}`}
-                  className="block h-full"
-                >
-                  <div className="aspect-video overflow-hidden">
-                    <ProjectImageDisplay
-                      image={project.mainImage}
-                      alt={project.title}
-                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="project-title text-xl font-semibold line-clamp-2">
-                      {project.title}
-                    </h3>
-                    {project.shortDescription && (
-                      <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                        {project.shortDescription}
-                      </p>
-                    )}
-                  </div>
-                </Link>
-              </div>
-            </MotionDiv>
-          ))}
-        </div>
+        <ProjectsClientSection
+          projects={projects}
+          showFilters={!featured}
+          featured={featured}
+        />
 
-        {/* More Projects Button - Only show on home page with featured projects */}
+        {/* More Projects Button */}
         {featured && (
-          <div className="text-center mt-2 mb-6">
-            <Button
-              asChild
-              variant="default"
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300"
-            >
-              <Link href="/projects">View More Projects</Link>
+          <div className="text-center mt-10">
+            <Button asChild variant="default" size="lg">
+              <Link href="/projects">View All Projects</Link>
             </Button>
           </div>
         )}
-
-        {/* Work Together Section */}
-        <div className="row align-items-center mt-5 hire" data-aos="fade-up">
-          <div className="col-lg-6 mt-5">
-            <h2 className="mb-5 text-lg-2 text-foreground">
-              Let&apos;s <span className="text-primary">work together</span> on
-              your next project
-            </h2>
-          </div>
-          <div className="col-lg-4 ml-auto text-right">
-            <Link href="#contact" className="btn btn-main smoth-scroll">
-              Hire Me
-            </Link>
-          </div>
-        </div>
       </div>
     </section>
   );

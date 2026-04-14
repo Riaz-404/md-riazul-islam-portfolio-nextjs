@@ -104,9 +104,43 @@ export const navigationSchema = z.object({
   ),
 });
 
+// Blog schema
+export const blogSchema = z.object({
+  type: z.enum(["internal", "external"]),
+  title: z.string().min(1, "Title is required"),
+  excerpt: z.string().min(1, "Excerpt is required").max(300),
+  content: z.string().optional(),
+  externalUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  source: z.string().optional(),
+  category: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  featured: z.boolean().optional(),
+  draft: z.boolean().optional(),
+  isActive: z.boolean().optional(),
+  order: z.number().min(0).optional(),
+  publishedAt: z.date().optional(),
+});
+
+// Publication schema
+export const publicationSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  authors: z.array(z.string().min(1, "Author name required")).min(1, "At least one author required"),
+  venue: z.string().optional(),
+  year: z.number().min(1900).max(2100),
+  url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  abstract: z.string().optional(),
+  type: z.enum(["journal", "conference", "book", "thesis", "other"]),
+  tags: z.array(z.string()).optional(),
+  featured: z.boolean().optional(),
+  order: z.number().min(0).optional(),
+  isActive: z.boolean().optional(),
+});
+
 // Export types
 export type AboutFormData = z.infer<typeof aboutSchema>;
 export type ExpertiseFormData = z.infer<typeof expertiseSchema>;
 export type ProjectFormData = z.infer<typeof projectSchema>;
 export type HeroFormData = z.infer<typeof heroSchema>;
 export type NavigationFormData = z.infer<typeof navigationSchema>;
+export type BlogFormData = z.infer<typeof blogSchema>;
+export type PublicationFormData = z.infer<typeof publicationSchema>;

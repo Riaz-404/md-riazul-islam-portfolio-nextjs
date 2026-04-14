@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Save, RefreshCw, Edit, Upload } from "lucide-react";
+import { Plus, Trash2, Save, RefreshCw, Edit, Upload, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { FileUpload } from "@/components/ui/file-upload";
 import { ProjectImageDisplay } from "@/components/ui/project-image";
@@ -216,6 +216,25 @@ export function ProjectsSection({
     }
   };
 
+  const toggleProjectActive = async (projectId: string, current: boolean) => {
+    try {
+      const res = await fetch(`/api/projects/${projectId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive: !current }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        toast.success(`Project ${!current ? "activated" : "deactivated"}`);
+        onProjectsChange();
+      } else {
+        toast.error("Failed to update project status");
+      }
+    } catch {
+      toast.error("An error occurred");
+    }
+  };
+
   const deleteProject = async (projectId: string) => {
     if (!confirm("Are you sure you want to delete this project?")) return;
 
@@ -379,23 +398,44 @@ export function ProjectsSection({
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold text-base sm:text-lg truncate">
-                      {project.title}
-                    </h3>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-semibold text-base sm:text-lg truncate">
+                        {project.title}
+                      </h3>
+                      {project.isActive === false && (
+                        <span className="inline-block bg-muted text-muted-foreground text-xs px-2 py-0.5 rounded">
+                          Inactive
+                        </span>
+                      )}
+                      {project.featured && (
+                        <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-0.5 rounded">
+                          Featured
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-gray-600 truncate">
                       {project.category} • {project.framework}
                     </p>
                     <p className="text-xs text-gray-500 truncate sm:block">
                       {project.shortDescription}
                     </p>
-                    {project.featured && (
-                      <span className="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded mt-1">
-                        Featured
-                      </span>
-                    )}
                   </div>
                 </div>
                 <div className="flex space-x-2 sm:flex-shrink-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    title={project.isActive === false ? "Activate" : "Deactivate"}
+                    onClick={() => toggleProjectActive(project._id!, project.isActive !== false)}
+                    className="flex-1 sm:flex-none"
+                  >
+                    {project.isActive === false
+                      ? <Eye className="h-4 w-4" />
+                      : <EyeOff className="h-4 w-4" />}
+                    <span className="ml-2 sm:hidden">
+                      {project.isActive === false ? "Activate" : "Deactivate"}
+                    </span>
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"

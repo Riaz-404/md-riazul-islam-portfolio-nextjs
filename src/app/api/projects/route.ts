@@ -7,9 +7,11 @@ export const revalidate = 3600;
 
 const projectService = new ProjectService();
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const projects = await projectService.getProjects();
+    const { searchParams } = new URL(request.url);
+    const all = searchParams.get("all") === "true";
+    const projects = await projectService.getProjects(all);
     return NextResponse.json({ success: true, data: projects });
   } catch (error) {
     console.error("Error fetching projects:", error);
