@@ -1,63 +1,46 @@
-@import url("https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&family=Roboto:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
-/* Custom Container System - matching Bootstrap container behavior */
+/* ─── Container System ─────────────────────────────────────────── */
+.container,
 .container-custom {
   width: 100%;
+  max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1rem; /* 16px */
-  padding-right: 1rem; /* 16px */
-}
-
-/* Responsive container max-widths matching Bootstrap */
-@media (min-width: 576px) {
-  .container-custom {
-    max-width: 540px;
-  }
-}
-
-@media (min-width: 768px) {
-  .container-custom {
-    max-width: 720px;
-  }
-}
-
-@media (min-width: 992px) {
-  .container-custom {
-    max-width: 960px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .container-custom {
-    max-width: 1140px;
-  }
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
 @media (min-width: 1400px) {
+  .container,
   .container-custom {
     max-width: 1320px;
   }
 }
 
-/* Section spacing similar to old website */
+.content-constrained {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ─── Section Spacing ───────────────────────────────────────────── */
 .section-padding {
-  padding-top: 5rem; /* py-20 equivalent - 80px */
+  padding-top: 5rem;
   padding-bottom: 5rem;
 }
 
 @media (min-width: 1024px) {
   .section-padding {
-    padding-top: 7rem; /* py-28 equivalent - 112px */
+    padding-top: 7rem;
     padding-bottom: 7rem;
   }
 }
 
-/* Additional width constraints for better content flow */
+/* ─── Layout Base ───────────────────────────────────────────────── */
 body {
   width: 100%;
   overflow-x: hidden;
@@ -68,74 +51,12 @@ main {
   max-width: 100vw;
 }
 
-/* Content width limiter */
-.content-constrained {
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Bootstrap-like utilities for components still using them */
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  margin-left: -0.75rem;
-  margin-right: -0.75rem;
-}
-
-.justify-content-center {
-  justify-content: center;
-}
-
-.col-lg-8 {
-  flex: 0 0 auto;
-  width: 100%;
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
-}
-
-.col-lg-6 {
-  flex: 0 0 auto;
-  width: 100%;
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
-}
-
-@media (min-width: 1024px) {
-  .col-lg-8 {
-    width: 66.666667%;
-  }
-
-  .col-lg-6 {
-    width: 50%;
-  }
-}
-
-.section-title {
-  margin-bottom: 3rem;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.title {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-@media (min-width: 1024px) {
-  .title {
-    font-size: 2.5rem;
-  }
-}
-
+/* ─── Theme Tokens ──────────────────────────────────────────────── */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -173,12 +94,11 @@ main {
 
 :root {
   --radius: 0.625rem;
-  /* Light theme colors - lighter version of the original dark theme */
   --card: oklch(0.98 0 0);
   --card-foreground: oklch(0.15 0 0);
   --popover: oklch(0.98 0 0);
   --popover-foreground: oklch(0.15 0 0);
-  --primary: oklch(0.68 0.15 52); /* Light version of #e1a34c */
+  --primary: oklch(0.68 0.15 52);
   --primary-foreground: oklch(0.15 0 0);
   --secondary: oklch(0.95 0 0);
   --secondary-foreground: oklch(0.15 0 0);
@@ -208,20 +128,19 @@ main {
 }
 
 .dark {
-  /* Original website dark theme colors */
-  --background: oklch(0.08 0 0); /* #0b090a */
-  --foreground: oklch(0.98 0 0); /* white text */
-  --card: oklch(0.1 0 0); /* #050406 */
+  --background: oklch(0.08 0 0);
+  --foreground: oklch(0.98 0 0);
+  --card: oklch(0.1 0 0);
   --card-foreground: oklch(0.98 0 0);
   --popover: oklch(0.1 0 0);
   --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.73 0.15 52); /* #e1a34c */
+  --primary: oklch(0.73 0.15 52);
   --primary-foreground: oklch(0.08 0 0);
   --secondary: oklch(0.15 0 0);
   --secondary-foreground: oklch(0.98 0 0);
   --muted: oklch(0.15 0 0);
-  --muted-foreground: oklch(0.65 0 0); /* #8b98af equivalent */
-  --accent: oklch(0.73 0.15 52); /* #e1a34c */
+  --muted-foreground: oklch(0.65 0 0);
+  --accent: oklch(0.73 0.15 52);
   --accent-foreground: oklch(0.08 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(0.98 0 0 / 8%);
@@ -246,38 +165,20 @@ main {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
-    font-family: "Roboto", sans-serif;
+    font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
     line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: "Work Sans", sans-serif;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
     font-weight: 700;
-  }
-
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 10px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: hsl(var(--background));
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground));
-    border-radius: 10px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--primary));
+    letter-spacing: -0.02em;
+    line-height: 1.2;
   }
 
   /* Smooth scrolling */
@@ -285,7 +186,25 @@ main {
     scroll-behavior: smooth;
   }
 
-  /* Rich text editor styles */
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: oklch(var(--muted-foreground) / 0.3);
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(var(--primary));
+  }
+
+  /* ─── ProseMirror (Rich Text Editor) ──────────────────────────── */
   .ProseMirror {
     outline: none;
   }
@@ -308,84 +227,7 @@ main {
     font-style: italic;
   }
 
-  /* Projects Section Styles - Matching Old Website */
-  .projects-section {
-    background: #050406;
-    padding: 100px 0;
-  }
-
-  .projects-section .section-title {
-    margin-bottom: 70px;
-  }
-
-  .projects-section .section-title span {
-    color: #e1a34c;
-    letter-spacing: 4px;
-    font-size: 14px;
-  }
-
-  .projects-section .title {
-    font-size: 70px;
-    line-height: 80px;
-    text-transform: capitalize;
-    color: #fff;
-    margin-top: 10px;
-  }
-
-  .project-card {
-    transition: all 0.35s ease;
-    background: hsl(var(--card));
-    margin-bottom: 30px;
-    border: 1px solid hsl(var(--border));
-    border-bottom: 3px solid transparent;
-    border-radius: 8px;
-    padding: 8px;
-    position: relative;
-  }
-
-  .project-card img {
-    width: 100%;
-  }
-
-  .project-card h3,
-  .project-card .project-title {
-    transition: color 0.35s ease !important;
-    opacity: 0.9;
-    color: hsl(var(--card-foreground)) !important;
-    font-size: 20px !important;
-    line-height: 28px !important;
-    font-weight: 700 !important;
-    text-transform: capitalize;
-    margin: 16px 0 !important;
-  }
-
-  .project-card:hover {
-    border-bottom: 3px solid #e1a34c !important;
-    background: hsl(var(--muted));
-    transform: translateY(-2px);
-  }
-
-  .dark .project-card:hover {
-    border-bottom: 3px solid #e1a34c !important;
-  }
-
-  .project-card:hover h3,
-  .project-card:hover .project-title {
-    color: #e1a34c !important;
-  }
-
-  /* Work Together Section */
-  .hire h2 {
-    font-size: 50px;
-    line-height: 56px;
-    color: rgba(255, 255, 255, 0.5);
-  }
-
-  .hire h2 span {
-    color: #fff;
-  }
-
-  /* Project Details Page Styles */
+  /* ─── Project Detail Page ─────────────────────────────────────── */
   .page-title {
     padding: 120px 0 60px;
   }
@@ -396,54 +238,54 @@ main {
 
   .projects-sidebar .card-title {
     text-transform: uppercase;
-    color: #fff;
+    color: hsl(var(--foreground));
     font-size: 20px;
     font-weight: 700;
   }
 
   .projects-sidebar ul li {
-    padding: 13px 0px;
+    padding: 13px 0;
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 400;
     font-size: 15px;
-    color: #8b98af;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: hsl(var(--muted-foreground));
+    border-bottom: 1px solid hsl(var(--border));
   }
 
   .projects-sidebar ul li span {
     font-size: 13px;
-    color: #fff;
+    color: hsl(var(--foreground));
     opacity: 0.9;
     font-weight: 600;
   }
 
   .projects-sidebar .tags h3 {
-    color: #fff;
+    color: hsl(var(--foreground));
     font-size: 18px;
     font-weight: 700;
   }
 
   .projects-sidebar .tags ul {
-    padding: 0px;
-    margin: 0px;
+    padding: 0;
+    margin: 0;
   }
 
   .projects-sidebar .tags li {
-    color: rgba(255, 255, 255, 0.8);
+    color: hsl(var(--foreground) / 0.8);
     padding: 2px 10px;
     display: inline-block;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid hsl(var(--border));
     margin-bottom: 5px;
     margin-right: 5px;
     text-transform: capitalize;
     font-size: 14px;
     cursor: default;
-    border-radius: 3px;
+    border-radius: 4px;
   }
 
   .projects-single ul {
-    color: #8b98af;
+    color: hsl(var(--muted-foreground));
     padding-left: 20px;
   }
 
@@ -455,435 +297,13 @@ main {
     font-size: 20px;
     line-height: 30px;
     font-weight: 700;
-    color: #fff;
+    color: hsl(var(--foreground));
   }
 
-  .projects-single h4 i {
-    color: #e1a34c;
-    margin-right: 12px;
-  }
-
-  /* Button Styles */
-  .btn-main {
-    background: #e1a34c;
-    color: #272727;
-    border-color: #e1a34c;
-    display: inline-block;
-    font-size: 18px;
-    padding: 13px 45px;
-    text-transform: capitalize;
-    font-weight: 400;
-    letter-spacing: 1px;
-    border-radius: 3px;
-    transition: all 0.2s ease;
-    border: 1px solid transparent;
-    text-decoration: none;
-    margin-bottom: 10px;
-    width: 100%;
-    text-align: center;
-  }
-
-  .btn-main:hover {
-    background: transparent;
-    color: #fff;
-    border-color: rgba(255, 255, 255, 0.2);
-    text-decoration: none;
-  }
-
-  .btn-solid-border {
-    background: transparent;
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    display: inline-block;
-    font-size: 18px;
-    padding: 13px 45px;
-    text-transform: capitalize;
-    font-weight: 400;
-    letter-spacing: 1px;
-    border-radius: 3px;
-    transition: all 0.2s ease;
-    text-decoration: none;
-    width: 100%;
-    text-align: center;
-  }
-
-  .btn-solid-border:hover {
-    background: #e1a34c;
-    color: #272727;
-    border-color: #e1a34c;
-    text-decoration: none;
-  }
-
-  /* Legacy Footer Styles - now handled by Tailwind theme system */
-  /* Footer styles have been migrated to use Tailwind theme variables in footer.tsx */
-
-  .backtop {
-    width: 40px;
-    height: 40px;
-    text-align: center;
-    color: #fff;
-    display: inline-block;
-    padding-top: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 100%;
-    text-decoration: none;
-  }
-
-  .backtop:hover {
-    background: #e1a34c;
-    color: #fff;
-    text-decoration: none;
-  }
-
-  /* Contact Form Styles */
-  .contact-form .form-control {
-    border: 0px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
-    padding-left: 0px;
-    font-size: 18px;
-    background: transparent;
-    color: #fff;
-    border-radius: 0;
-  }
-
-  .contact-form .form-control:hover {
-    border-bottom: 1px solid #e1a34c;
-  }
-
-  .contact-form .form-control:focus {
-    border-bottom: 1px solid #e1a34c;
-    box-shadow: none;
-    background: transparent;
-    color: #fff;
-  }
-
-  .contact-form .form-control::placeholder {
-    color: rgba(255, 255, 255, 0.7);
-  }
-
-  /* Updated styles for shadcn components */
-  .contact-input,
-  .contact-textarea {
-    transition: border-color 0.3s ease;
-  }
-
-  .contact-input:hover,
-  .contact-textarea:hover {
-    border-bottom-color: #e1a34c !important;
-  }
-
-  .contact-input:focus,
-  .contact-textarea:focus {
-    border-bottom-color: #e1a34c !important;
-    outline: none;
-    box-shadow: none !important;
-  }
-
-  .contact-input::placeholder,
-  .contact-textarea::placeholder {
-    color: rgba(255, 255, 255, 0.7) !important;
-  }
-
-  /* Bootstrap Grid and Utilities */
-  .container {
-    width: 100%;
-    padding-right: 15px;
-    padding-left: 15px;
-    margin-right: auto;
-    margin-left: auto;
-  }
-
-  @media (min-width: 576px) {
-    .container {
-      max-width: 540px;
-    }
-  }
-
-  @media (min-width: 768px) {
-    .container {
-      max-width: 720px;
-    }
-  }
-
-  @media (min-width: 992px) {
-    .container {
-      max-width: 960px;
-    }
-  }
-
-  @media (min-width: 1200px) {
-    .container {
-      max-width: 1140px;
-    }
-  }
-
-  .row {
-    display: flex;
-    flex-wrap: wrap;
-    margin-right: -15px;
-    margin-left: -15px;
-  }
-
-  .col-lg-4,
-  .col-lg-6,
-  .col-lg-8,
-  .col-lg-12,
-  .col-md-6 {
-    position: relative;
-    width: 100%;
-    padding-right: 15px;
-    padding-left: 15px;
-  }
-
-  @media (min-width: 768px) {
-    .col-md-6 {
-      flex: 0 0 50%;
-      max-width: 50%;
-    }
-  }
-
-  @media (min-width: 992px) {
-    .col-lg-4 {
-      flex: 0 0 33.333333%;
-      max-width: 33.333333%;
-    }
-
-    .col-lg-6 {
-      flex: 0 0 50%;
-      max-width: 50%;
-    }
-
-    .col-lg-8 {
-      flex: 0 0 66.666667%;
-      max-width: 66.666667%;
-    }
-
-    .col-lg-12 {
-      flex: 0 0 100%;
-      max-width: 100%;
-    }
-  }
-
-  .justify-content-center {
-    justify-content: center;
-  }
-
-  .align-items-center {
-    align-items: center;
-  }
-
-  .text-center {
-    text-align: center;
-  }
-
-  .text-right {
-    text-align: right;
-  }
-
-  .text-lg-left {
-    text-align: left;
-  }
-
-  .d-flex {
-    display: flex;
-  }
-
-  .flex-column {
-    flex-direction: column;
-  }
-
-  .justify-content-between {
-    justify-content: space-between;
-  }
-
-  .align-content-center {
-    align-content: center;
-  }
-
-  .list-inline {
-    list-style: none;
-    padding-left: 0;
-  }
-
-  .list-inline-item {
-    display: inline-block;
-  }
-
-  .list-unstyled {
-    padding-left: 0;
-    list-style: none;
-  }
-
-  .mr-2 {
-    margin-right: 0.5rem;
-  }
-
-  .mr-3 {
-    margin-right: 1rem;
-  }
-
-  .ml-auto {
-    margin-left: auto;
-  }
-
-  .mt-3 {
-    margin-top: 1rem;
-  }
-
-  .mt-4 {
-    margin-top: 1.5rem;
-  }
-
-  .mt-5 {
-    margin-top: 3rem;
-  }
-
-  .mb-3 {
-    margin-bottom: 1rem;
-  }
-
-  .mb-4 {
-    margin-bottom: 1.5rem;
-  }
-
-  .mb-5 {
-    margin-bottom: 3rem;
-  }
-
-  .my-4 {
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .pt-4 {
-    padding-top: 1.5rem;
-  }
-
-  .p-2 {
-    padding: 0.5rem;
-  }
-
-  .p-4 {
-    padding: 1.5rem;
-  }
-
-  .p-5 {
-    padding: 3rem;
-  }
-
-  .text-capitalize {
-    text-transform: capitalize;
-  }
-
-  .text-uppercase {
-    text-transform: uppercase;
-  }
-
-  .text-decoration-none {
-    text-decoration: none;
-  }
-
-  .img-fluid {
-    max-width: 100%;
-    height: auto;
-  }
-
-  .rounded {
-    border-radius: 0.375rem;
-  }
-
-  .form-group {
-    margin-bottom: 1rem;
-  }
-
-  .form-row {
-    display: flex;
-    flex-wrap: wrap;
-    margin-right: -5px;
-    margin-left: -5px;
-  }
-
-  .form-row > .col,
-  .form-row > [class*="col-"] {
-    padding-right: 5px;
-    padding-left: 5px;
-  }
-
-  /* Additional Bootstrap-like grid columns */
-  .col-md-6 {
-    flex: 0 0 auto;
-    width: 100%;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
-
-  @media (min-width: 768px) {
-    .col-md-6 {
-      width: 50%;
-    }
-  }
-
-  .col-lg-4 {
-    flex: 0 0 auto;
-    width: 100%;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
-
-  @media (min-width: 1024px) {
-    .col-lg-4 {
-      width: 33.333333%;
-    }
-
-    .col-lg-6 {
-      width: 50%;
-    }
-  }
-
-  /* Project card additional styling - these work together with the main .project-card styles above */
-  .project-card {
-    margin-bottom: 2rem;
-  }
-
-  /* This hover effect works together with the border-bottom effect from the main styles */
-  .project-card:hover {
-    transform: translateY(-5px);
-    transition: all 0.3s ease;
-  }
-
-  /* Enhanced Contact Form Theme Support */
+  /* ─── Contact Form ────────────────────────────────────────────── */
   .contact-input,
   .contact-textarea {
     transition: border-color 0.3s ease !important;
-  }
-
-  /* Dark theme contact form styles */
-  .dark .contact-input,
-  .dark .contact-textarea {
-    color: hsl(var(--foreground)) !important;
-    background: transparent !important;
-    border-bottom-color: hsl(var(--border)) !important;
-  }
-
-  .dark .contact-input:hover,
-  .dark .contact-textarea:hover {
-    border-bottom-color: hsl(var(--primary)) !important;
-  }
-
-  .dark .contact-input:focus,
-  .dark .contact-textarea:focus {
-    border-bottom-color: hsl(var(--primary)) !important;
-    box-shadow: none !important;
-  }
-
-  .dark .contact-input::placeholder,
-  .dark .contact-textarea::placeholder {
-    color: hsl(var(--muted-foreground) / 0.7) !important;
-  }
-
-  /* Light theme contact form styles */
-  .contact-input,
-  .contact-textarea {
     color: hsl(var(--foreground)) !important;
     background: transparent !important;
     border-bottom-color: hsl(var(--border)) !important;
@@ -903,5 +323,27 @@ main {
   .contact-input::placeholder,
   .contact-textarea::placeholder {
     color: hsl(var(--muted-foreground) / 0.7) !important;
+  }
+
+  /* ─── Project Cards ───────────────────────────────────────────── */
+  .project-card {
+    transition: all 0.3s ease;
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 16px;
+    position: relative;
+  }
+
+  .project-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px hsl(var(--foreground) / 0.08);
+  }
+
+  /* ─── Gradient Text Utility ───────────────────────────────────── */
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.7));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }

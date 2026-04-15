@@ -1,7 +1,5 @@
 import * as React from "react";
-import { Check } from "lucide-react";
 import { AboutData, defaultAboutData } from "@/types/about";
-import { SocialLink, defaultNavigationData } from "@/types/navigation";
 import { getAboutData as getAboutDataFromDB } from "@/lib/about-service";
 import {
   MotionDiv,
@@ -13,55 +11,21 @@ const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: {
-      delayChildren: 0.3,
-      staggerChildren: 0.2,
-    },
+    transition: { delayChildren: 0.2, staggerChildren: 0.15 },
   },
 };
 
 const itemVariants = {
   hidden: { y: 20, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    transition: {
-      duration: 0.6,
-    },
-  },
+  visible: { y: 0, opacity: 1, transition: { duration: 0.6 } },
 };
 
 async function getAboutData(): Promise<AboutData> {
   try {
-    // Use the service function directly instead of making HTTP request
-    const aboutData = await getAboutDataFromDB();
-    return aboutData;
+    return await getAboutDataFromDB();
   } catch (error) {
     console.error("Error fetching about data:", error);
     return defaultAboutData;
-  }
-}
-
-async function getSocialLinks(): Promise<SocialLink[]> {
-  try {
-    const { NavigationService } = await import("@/lib/navigation-service");
-    const navigation = await NavigationService.getNavigation();
-    const links =
-      navigation?.socialLinks?.filter((link: SocialLink) => link.isActive) ||
-      defaultNavigationData.socialLinks;
-
-    // Ensure plain objects with all required fields
-    return links.map((link) => ({
-      id: link.id,
-      href: link.href,
-      icon: link.icon,
-      label: link.label,
-      order: link.order,
-      isActive: link.isActive,
-    }));
-  } catch (error) {
-    console.error("Error fetching social links:", error);
-    return defaultNavigationData.socialLinks.filter((link) => link.isActive);
   }
 }
 
@@ -69,91 +33,97 @@ export async function AboutSection() {
   const aboutData = await getAboutData();
 
   return (
-    <section id="about" className="py-20 lg:py-28">
+    <section id="about" className="py-24 lg:py-32 bg-muted/20">
       <div className="container">
         <MotionDiv
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="space-y-16 max-w-6xl mx-auto"
+          className="max-w-6xl mx-auto space-y-20"
         >
-          {/* Myself Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12">
-            <MotionDiv variants={itemVariants} className="lg:col-span-1">
-              <MotionH2 className="text-2xl lg:text-3xl font-bold flex items-center gap-3">
-                <span className="text-primary">—</span>
+          {/* ── Section label ── */}
+          <MotionDiv variants={itemVariants} className="space-y-4">
+            <p className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">
+              About Me
+            </p>
+            <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 lg:gap-16 items-start">
+              <MotionH2
+                variants={itemVariants}
+                className="text-3xl lg:text-4xl font-bold text-foreground"
+              >
                 {aboutData.myself.title}
               </MotionH2>
-            </MotionDiv>
 
-            <MotionDiv
-              variants={itemVariants}
-              className="lg:col-span-3 space-y-6"
-            >
-              {aboutData.myself.description.map((paragraph, index) => (
-                <MotionP
-                  key={index}
-                  variants={itemVariants}
-                  className="text-muted-foreground text-lg leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: paragraph }}
-                />
-              ))}
-            </MotionDiv>
-          </div>
+              <MotionDiv variants={itemVariants} className="space-y-5">
+                {aboutData.myself.description.map((paragraph, index) => (
+                  <MotionP
+                    key={index}
+                    variants={itemVariants}
+                    className="text-muted-foreground text-base lg:text-lg leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: paragraph }}
+                  />
+                ))}
+              </MotionDiv>
+            </div>
+          </MotionDiv>
 
-          {/* Skills Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12">
-            <MotionDiv variants={itemVariants} className="lg:col-span-1">
-              <MotionH2 className="text-2xl lg:text-3xl font-bold flex items-center gap-3">
-                <span className="text-primary">—</span>
+          {/* ── Skills ── */}
+          <MotionDiv variants={itemVariants}>
+            <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 lg:gap-16 items-start">
+              <MotionH2
+                variants={itemVariants}
+                className="text-3xl lg:text-4xl font-bold text-foreground"
+              >
                 {aboutData.skills.title}
               </MotionH2>
-            </MotionDiv>
 
-            <MotionDiv variants={itemVariants} className="lg:col-span-3">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <MotionDiv
+                variants={itemVariants}
+                className="grid grid-cols-1 sm:grid-cols-2 gap-8"
+              >
                 {aboutData.skills.categories.map((category, categoryIndex) => (
                   <MotionDiv
                     key={category.id}
                     variants={itemVariants}
                     className="space-y-4"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: categoryIndex * 0.1 }}
                   >
-                    <h3 className="text-lg font-semibold text-foreground mb-4">
-                      {category.name}
-                    </h3>
-                    <ul className="space-y-4">
+                    {/* Category Header */}
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-1 h-5 rounded-full bg-primary" />
+                      <h3 className="text-base font-semibold text-foreground tracking-tight">
+                        {category.name}
+                      </h3>
+                    </div>
+
+                    {/* Skill Badges */}
+                    <div className="flex flex-wrap gap-2">
                       {category.items.map((skill, skillIndex) => (
                         <MotionDiv
                           key={skill.id}
-                          variants={itemVariants}
-                          className="flex items-start gap-3"
-                          initial={{ opacity: 0, x: -20 }}
-                          whileInView={{ opacity: 1, x: 0 }}
+                          initial={{ opacity: 0, scale: 0.85 }}
+                          whileInView={{ opacity: 1, scale: 1 }}
                           viewport={{ once: true }}
                           transition={{
-                            duration: 0.5,
-                            delay: categoryIndex * 0.1 + skillIndex * 0.05,
+                            duration: 0.3,
+                            delay: categoryIndex * 0.08 + skillIndex * 0.04,
                           }}
+                          title={skill.description}
+                          className="px-3 py-1.5 rounded-lg text-sm font-medium bg-card border border-border text-foreground hover:border-primary/40 hover:bg-primary/8 hover:text-primary transition-all duration-200 cursor-default"
                         >
-                          <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                          <div className="space-y-1">
-                            <span className="text-foreground font-medium">
-                              {skill.name}
-                            </span>
-                            <span className="text-muted-foreground">
-                              {" "}
-                              - {skill.description}
-                            </span>
-                          </div>
+                          {skill.name}
                         </MotionDiv>
                       ))}
-                    </ul>
+                    </div>
                   </MotionDiv>
                 ))}
-              </div>
-            </MotionDiv>
-          </div>
+              </MotionDiv>
+            </div>
+          </MotionDiv>
         </MotionDiv>
       </div>
     </section>

@@ -20,7 +20,7 @@ export function BlogCard({ blog, className, compact = false }: BlogCardProps) {
 
   return (
     <Link href={href} {...linkProps} className={cn("group block", className)}>
-      <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 h-full flex flex-col">
+      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 h-full flex flex-col">
         {/* Cover Image */}
         {blog.coverImage?.url ? (
           <div className="relative aspect-video overflow-hidden bg-muted">

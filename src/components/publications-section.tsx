@@ -23,11 +23,11 @@ function PublicationCard({ pub }: { pub: PublicationData }) {
     publicationTypes.find((t) => t.value === pub.type)?.label ?? pub.type;
 
   return (
-    <div className="flex gap-3 p-4 rounded-lg border border-border bg-card hover:shadow-sm transition-shadow duration-200">
+    <div className="flex gap-4 p-5 rounded-xl border border-border bg-card hover:border-primary/30 hover:shadow-sm transition-all duration-200">
       <PublicationIcon type={pub.type} />
       <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-2 flex-wrap">
-          <h3 className="font-medium text-sm leading-snug flex-1">
+        <div className="flex items-start justify-between gap-2 flex-wrap mb-1">
+          <h3 className="font-semibold text-sm leading-snug flex-1">
             {pub.url ? (
               <a
                 href={pub.url}
@@ -68,11 +68,11 @@ function PublicationCard({ pub }: { pub: PublicationData }) {
             </p>
           </details>
         )}
-        <div className="flex items-center gap-2 mt-2 flex-wrap">
+        <div className="flex items-center gap-2 mt-2.5 flex-wrap">
           {pub.tags?.map((tag) => (
             <span
               key={tag}
-              className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground"
+              className="text-xs px-2 py-0.5 rounded-md bg-muted text-muted-foreground border border-border/50"
             >
               {tag}
             </span>
@@ -104,28 +104,25 @@ export async function PublicationsSection() {
     return null;
   }
 
-  // Hide section entirely when no publications
   if (publications.length === 0) return null;
 
   return (
-    <section
-      className="section-padding bg-background text-foreground"
-      id="publications"
-    >
+    <section className="section-padding bg-muted/20" id="publications">
       <div className="container-custom content-constrained">
-        <div className="text-center mb-10">
-          <span className="text-sm text-muted-foreground uppercase tracking-widest">
+        {/* Section Header */}
+        <div className="space-y-3 max-w-xl mb-12">
+          <p className="text-primary text-sm font-semibold uppercase tracking-[0.15em]">
             Research
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-bold mt-2 text-foreground">
+          </p>
+          <h2 className="text-3xl lg:text-4xl font-bold text-foreground">
             Publications
           </h2>
-          <p className="text-muted-foreground mt-3 max-w-xl mx-auto text-sm sm:text-base">
+          <p className="text-muted-foreground text-base lg:text-lg">
             Research papers, articles, and academic publications.
           </p>
         </div>
 
-        <div className="space-y-3 max-w-3xl mx-auto">
+        <div className="space-y-3 max-w-3xl">
           {publications.map((pub) => (
             <PublicationCard key={pub._id} pub={pub} />
           ))}
