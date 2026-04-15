@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import { Button } from "./button";
@@ -69,6 +70,85 @@ export function ImageGallery({
 
   if (images.length === 0) return null;
 
+  const lightbox =
+    selectedIndex !== null &&
+    createPortal(
+      <div
+        className="fixed inset-0 bg-black/95 flex items-center justify-center"
+        style={{ zIndex: 99999 }}
+        onClick={closeLightbox}
+      >
+        {/* Close Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={closeLightbox}
+          className="absolute top-4 right-4 text-white hover:bg-white/20"
+          style={{ zIndex: 100000 }}
+        >
+          <X className="h-6 w-6" />
+        </Button>
+
+        {/* Previous Button */}
+        {images.length > 1 && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={(e) => {
+              e.stopPropagation();
+              goToPrevious();
+            }}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12"
+            style={{ zIndex: 100000 }}
+          >
+            <ChevronLeft className="h-8 w-8" />
+          </Button>
+        )}
+
+        {/* Next Button */}
+        {images.length > 1 && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={(e) => {
+              e.stopPropagation();
+              goToNext();
+            }}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12"
+            style={{ zIndex: 100000 }}
+          >
+            <ChevronRight className="h-8 w-8" />
+          </Button>
+        )}
+
+        {/* Image */}
+        <div
+          className="relative w-full h-full flex items-center justify-center px-16 py-12"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Image
+            src={images[selectedIndex].url}
+            alt={`${projectTitle} - Image ${selectedIndex + 1}`}
+            fill
+            className="object-contain"
+            priority
+            sizes="100vw"
+          />
+        </div>
+
+        {/* Image Counter */}
+        <div
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 px-4 py-2 rounded-full"
+          style={{ zIndex: 100000 }}
+        >
+          <p className="text-white text-sm">
+            {selectedIndex + 1} / {images.length}
+          </p>
+        </div>
+      </div>,
+      document.body
+    );
+
   return (
     <>
       {/* Gallery Grid */}
@@ -98,77 +178,7 @@ export function ImageGallery({
         ))}
       </div>
 
-      {/* Lightbox Modal */}
-      {selectedIndex !== null && (
-        <div
-          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
-          onClick={closeLightbox}
-        >
-          {/* Close Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={closeLightbox}
-            className="absolute top-4 right-4 text-white hover:bg-white/20 z-10"
-          >
-            <X className="h-6 w-6" />
-          </Button>
-
-          {/* Previous Button */}
-          {images.length > 1 && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                goToPrevious();
-              }}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 z-10"
-            >
-              <ChevronLeft className="h-8 w-8" />
-            </Button>
-          )}
-
-          {/* Next Button */}
-          {images.length > 1 && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                goToNext();
-              }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 z-10"
-            >
-              <ChevronRight className="h-8 w-8" />
-            </Button>
-          )}
-
-          {/* Image */}
-          <div
-            className="relative max-w-7xl max-h-[90vh] w-full h-full flex items-center justify-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="relative w-full h-full flex items-center justify-center">
-              <Image
-                src={images[selectedIndex].url}
-                alt={`${projectTitle} - Image ${selectedIndex + 1}`}
-                width={1920}
-                height={1080}
-                className="max-w-full max-h-[90vh] w-auto h-auto object-contain rounded-lg"
-                priority
-              />
-            </div>
-          </div>
-
-          {/* Image Counter */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 px-4 py-2 rounded-full">
-            <p className="text-white text-sm">
-              {selectedIndex + 1} / {images.length}
-            </p>
-          </div>
-        </div>
-      )}
+      {lightbox}
     </>
   );
 }

@@ -18,9 +18,9 @@ export function ProjectActionButton({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className={`btn btn-main ${className}`}
+      className={`flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-md text-sm font-medium transition-all duration-200 bg-primary text-primary-foreground hover:bg-primary/85 ${className}`}
     >
-      <i className={icon} style={{ marginRight: "8px" }}></i>
+      <i className={icon}></i>
       {children}
     </a>
   );
