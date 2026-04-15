@@ -44,10 +44,10 @@ function SkillBar({ name, percentage, index }: SkillBarProps) {
       whileInView="visible"
       viewport={{ once: true }}
       transition={{ delay: index * 0.1 }}
-      className="mb-8"
+      className="mb-4"
     >
-      <div className="flex justify-between items-center mb-3">
-        <h4 className="text-lg font-medium text-foreground">{name}</h4>
+      <div className="flex justify-between items-center mb-2">
+        <h4 className="text-base font-medium text-foreground">{name}</h4>
         <span className="text-sm text-muted-foreground font-medium">
           {percentage}%
         </span>
@@ -119,22 +119,22 @@ export async function ExpertiseSection() {
           </div>
 
           {/* Skills Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
             {expertiseData.categories.map(
               (category: any, categoryIndex: number) => (
                 <MotionDiv
                   key={category.id}
                   variants={itemVariants}
-                  className="space-y-8"
+                  className="space-y-4"
                 >
                   <MotionH3
                     variants={itemVariants}
-                    className="text-xl font-semibold text-foreground mb-8 pb-2 border-b border-primary/20"
+                    className="text-xl font-semibold text-foreground mb-4 pb-2 border-b border-primary/20"
                   >
                     {category.name}
                   </MotionH3>
 
-                  <div className="space-y-6">
+                  <div className="space-y-3">
                     {category.skills.map((skill: any, skillIndex: number) => (
                       <SkillBar
                         key={skill.id}
