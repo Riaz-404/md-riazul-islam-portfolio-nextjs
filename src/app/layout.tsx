@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Work_Sans, Roboto, Poppins } from "next/font/google";
+import { Work_Sans, Roboto, Poppins, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
 import { ThemeProvider } from "@/components/shared/theme-provider";
@@ -23,6 +23,12 @@ const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -49,7 +55,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${workSans.variable} ${roboto.variable} ${poppins.variable} font-roboto antialiased overflow-x-hidden`}
+        className={`${workSans.variable} ${roboto.variable} ${poppins.variable} ${jetbrainsMono.variable} font-roboto antialiased overflow-x-hidden`}
       >
         <ThemeProvider
           attribute="class"

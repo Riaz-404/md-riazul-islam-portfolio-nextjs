@@ -111,8 +111,17 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const { isActive } = await request.json();
-    const updated = await blogService.toggleActive(id, isActive);
+    const body = await request.json();
+
+    let updated;
+    if (typeof body.draft === "boolean") {
+      // Quick publish/unpublish
+      updated = await blogService.updateBlog(id, { draft: body.draft } as any, undefined);
+    } else {
+      // Toggle active (existing behaviour)
+      updated = await blogService.toggleActive(id, body.isActive);
+    }
+
     revalidatePath("/api/blogs");
     revalidatePath("/blog");
     return NextResponse.json({ success: true, data: updated });

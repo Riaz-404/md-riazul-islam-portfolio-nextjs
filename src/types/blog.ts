@@ -25,6 +25,8 @@ export interface BlogData {
   featured: boolean;
   isActive: boolean;
   order: number;
+  views?: number;
+  loves?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }

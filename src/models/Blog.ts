@@ -24,6 +24,9 @@ export interface IBlog extends Document {
   featured: boolean;
   isActive: boolean;
   order: number;
+  // Engagement
+  views: number;
+  loves: number;
 }
 
 const BlogSchema = new Schema<IBlog>(
@@ -96,6 +99,14 @@ const BlogSchema = new Schema<IBlog>(
       default: true,
     },
     order: {
+      type: Number,
+      default: 0,
+    },
+    views: {
+      type: Number,
+      default: 0,
+    },
+    loves: {
       type: Number,
       default: 0,
     },

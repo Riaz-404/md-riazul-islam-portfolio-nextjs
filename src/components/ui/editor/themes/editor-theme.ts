@@ -16,7 +16,9 @@ export const editorTheme: EditorThemeClasses = {
     underline: "underline",
     strikethrough: "line-through",
     underlineStrikethrough: "underline line-through",
-    code: "font-mono bg-muted px-1 py-0.5 rounded text-sm",
+    code: "blog-inline-code",
+    superscript: "align-super text-[0.75em]",
+    subscript: "align-sub text-[0.75em]",
   },
   list: {
     ul: "list-disc list-outside ml-6 mb-2 space-y-1",
@@ -26,12 +28,12 @@ export const editorTheme: EditorThemeClasses = {
       listitem: "list-none",
     },
   },
-  quote:
-    "border-l-4 border-primary pl-4 italic text-muted-foreground my-4 ml-2",
-  code: "block font-mono bg-muted p-4 rounded-lg text-sm my-3 overflow-x-auto",
+  quote: "border-l-4 border-primary pl-4 italic text-muted-foreground my-4 ml-2",
+  code: "blog-code-block",
   link: "text-primary underline hover:text-primary/80 cursor-pointer",
   table: "w-full border-collapse my-4",
   tableRow: "",
-  tableCell: "border border-border p-2 text-left",
-  tableCellHeader: "border border-border p-2 text-left font-semibold bg-muted",
+  tableCell: "border border-border p-2 text-left min-w-[80px]",
+  tableCellHeader: "border border-border p-2 text-left font-semibold bg-muted min-w-[80px]",
+  hr: "border-none border-t border-border my-4",
 };

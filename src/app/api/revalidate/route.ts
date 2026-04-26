@@ -15,9 +15,12 @@ export async function POST(request: NextRequest) {
         "/api/hero": ["/"],
         "/api/about": ["/"],
         "/api/expertise": ["/"],
-        "/api/navigation": ["/", "/projects"],
+        "/api/navigation": ["/", "/projects", "/blog"],
         "/api/projects": ["/", "/projects"],
         "/api/projects/featured": ["/"],
+        "/api/blogs": ["/blog"],
+        "/api/publications": ["/"],
+        "/blog": ["/blog"],
       };
 
       if (apiToPageMapping[path]) {
@@ -60,14 +63,17 @@ export async function POST(request: NextRequest) {
     if (type === "all") {
       // Revalidate all main pages where data is actually displayed
       const paths = [
-        "/", // Home page (hero, about, expertise, featured projects)
-        "/projects", // Projects page
+        "/",
+        "/projects",
+        "/blog",
         "/api/hero",
         "/api/about",
         "/api/expertise",
         "/api/navigation",
         "/api/projects",
         "/api/projects/featured",
+        "/api/blogs",
+        "/api/publications",
       ];
 
       // Use Promise.all to revalidate all paths concurrently
