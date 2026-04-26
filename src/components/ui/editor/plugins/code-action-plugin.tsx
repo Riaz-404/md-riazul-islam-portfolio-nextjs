@@ -247,6 +247,7 @@ function CodeBlockHeader({ nodeKey, language, filename, isEnhanced, top, left, w
               />
             ) : (
               <button
+                type="button"
                 onClick={() => setEditingFilename(true)}
                 className="text-xs text-[#cdd6f4]/60 hover:text-[#cdd6f4] transition-colors"
               >
@@ -261,6 +262,7 @@ function CodeBlockHeader({ nodeKey, language, filename, isEnhanced, top, left, w
           {/* Language selector */}
           <div className="relative" ref={dropdownRef}>
             <button
+              type="button"
               onClick={() => setShowLangDropdown((v) => !v)}
               className="flex items-center gap-1 text-xs text-[#89b4fa] hover:text-[#cdd6f4] transition-colors"
             >
@@ -274,6 +276,7 @@ function CodeBlockHeader({ nodeKey, language, filename, isEnhanced, top, left, w
               >
                 {LANGUAGES.map((lang) => (
                   <button
+                    type="button"
                     key={lang.value}
                     onClick={() => handleLanguageChange(lang.value)}
                     className={`w-full text-left px-3 py-1.5 text-xs hover:bg-[#313244] transition-colors ${
@@ -289,6 +292,7 @@ function CodeBlockHeader({ nodeKey, language, filename, isEnhanced, top, left, w
 
           {/* Copy button */}
           <button
+            type="button"
             onClick={handleCopy}
             className="text-[#6c7086] hover:text-[#cdd6f4] transition-colors"
             title="Copy code"

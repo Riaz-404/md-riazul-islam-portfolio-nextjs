@@ -69,6 +69,24 @@ const cacheSections: CacheSection[] = [
     description: "Featured projects data",
     endpoint: "/api/projects/featured",
   },
+  {
+    id: "blog-page",
+    name: "Blog Listing",
+    description: "Public blog listing page",
+    endpoint: "/blog",
+  },
+  {
+    id: "blogs-api",
+    name: "Blogs API",
+    description: "All blog posts data",
+    endpoint: "/api/blogs",
+  },
+  {
+    id: "publications-api",
+    name: "Publications API",
+    description: "All publications data",
+    endpoint: "/api/publications",
+  },
 ];
 
 export function AdminCacheSection() {

@@ -1,5 +1,5 @@
 import { CodeNode, type SerializedCodeNode } from "@lexical/code";
-import type { ElementFormatType, LexicalUpdateJSON, NodeKey, Spread } from "lexical";
+import type { DOMExportOutput, ElementFormatType, LexicalEditor, LexicalUpdateJSON, NodeKey, Spread } from "lexical";
 
 export type SerializedEnhancedCodeNode = Spread<
   { filename: string },
@@ -35,16 +35,16 @@ export class EnhancedCodeNode extends CodeNode {
     writable.__filename = filename;
   }
 
-  exportDOM(): { element: HTMLElement } {
-    const result = super.exportDOM({} as never);
+  exportDOM(editor: LexicalEditor): DOMExportOutput {
+    const result = super.exportDOM(editor);
     const el = result.element as HTMLElement;
-    if (this.__filename) {
+    if (el && this.__filename) {
       el.setAttribute("data-filename", this.__filename);
     }
-    if (this.__language) {
+    if (el && this.__language) {
       el.setAttribute("data-language", this.__language as string);
     }
-    return { element: el };
+    return result;
   }
 
   exportJSON(): SerializedEnhancedCodeNode {

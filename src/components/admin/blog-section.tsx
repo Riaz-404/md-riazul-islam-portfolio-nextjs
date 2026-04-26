@@ -18,6 +18,10 @@ import {
   EyeOff,
   Monitor,
   PenLine,
+  Heart,
+  MessageCircle,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,11 +48,140 @@ import { Separator } from "@/components/ui/separator";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { blogSchema, type BlogFormData } from "./schemas";
 import { BlogData, blogCategories } from "@/types/blog";
+import type { CommentData } from "@/types/comment";
 
 interface BlogSectionProps {
   blogs: BlogData[];
   onBlogsChange: () => void;
   isBlogsLoading: boolean;
+}
+
+// ─── Comment Moderation Panel ─────────────────────────────────────────────────
+function CommentPanel({ blogId }: { blogId: string }) {
+  const [comments, setComments] = React.useState<CommentData[]>([]);
+  const [loading, setLoading] = React.useState(false);
+  const [toggling, setToggling] = React.useState<string | null>(null);
+  const [deleting, setDeleting] = React.useState<string | null>(null);
+  const [loaded, setLoaded] = React.useState(false);
+
+  React.useEffect(() => {
+    if (loaded) return;
+    setLoading(true);
+    fetch(`/api/blogs/${blogId}/comments?all=true`)
+      .then((r) => r.json())
+      .then((d) => { if (d.success) setComments(d.data); })
+      .catch(() => {})
+      .finally(() => { setLoading(false); setLoaded(true); });
+  }, [blogId, loaded]);
+
+  const handleToggle = async (comment: CommentData) => {
+    setToggling(comment._id!);
+    try {
+      const res = await fetch(`/api/blogs/${blogId}/comments/${comment._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isHidden: !comment.isHidden }),
+      });
+      const d = await res.json();
+      if (d.success) {
+        setComments((prev) =>
+          prev.map((c) => (c._id === comment._id ? { ...c, isHidden: !c.isHidden } : c))
+        );
+      }
+    } catch {}
+    setToggling(null);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Delete this comment?")) return;
+    setDeleting(id);
+    try {
+      await fetch(`/api/blogs/${blogId}/comments/${id}`, { method: "DELETE" });
+      setComments((prev) => prev.filter((c) => c._id !== id));
+    } catch {}
+    setDeleting(null);
+  };
+
+  const active = comments.filter((c) => !c.isHidden).length;
+  const hidden = comments.filter((c) => c.isHidden).length;
+
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground">
+        <Loader2 className="h-4 w-4 animate-spin" /> Loading comments…
+      </div>
+    );
+  }
+
+  if (comments.length === 0) {
+    return <p className="text-sm text-muted-foreground py-3">No comments yet.</p>;
+  }
+
+  return (
+    <div className="space-y-2 pt-1">
+      <p className="text-xs text-muted-foreground">
+        {active} visible · {hidden} hidden
+      </p>
+      <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+        {comments.map((c) => (
+          <div
+            key={c._id}
+            className={`flex items-start gap-3 p-3 rounded-lg border text-sm transition-opacity ${
+              c.isHidden ? "opacity-50 bg-muted/30" : "bg-background"
+            }`}
+          >
+            <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center text-primary text-xs font-bold shrink-0">
+              {c.authorName ? c.authorName[0].toUpperCase() : "A"}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap mb-1">
+                <span className="font-medium text-xs">{c.authorName || "Anonymous"}</span>
+                <span className="text-xs text-muted-foreground">
+                  {c.createdAt ? new Date(c.createdAt).toLocaleString() : ""}
+                </span>
+                {c.isHidden && (
+                  <span className="text-xs px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
+                    Hidden
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-foreground/80 whitespace-pre-wrap break-words line-clamp-3">
+                {c.content}
+              </p>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                onClick={() => handleToggle(c)}
+                disabled={toggling === c._id}
+                title={c.isHidden ? "Show comment" : "Hide comment"}
+                className="h-7 w-7 flex items-center justify-center rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+              >
+                {toggling === c._id ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : c.isHidden ? (
+                  <Eye className="h-3.5 w-3.5" />
+                ) : (
+                  <EyeOff className="h-3.5 w-3.5" />
+                )}
+              </button>
+              <button
+                onClick={() => handleDelete(c._id!)}
+                disabled={deleting === c._id}
+                title="Delete comment"
+                className="h-7 w-7 flex items-center justify-center rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
+              >
+                {deleting === c._id ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="h-3.5 w-3.5" />
+                )}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 // ─── Live Preview ─────────────────────────────────────────────────────────────
@@ -163,8 +296,10 @@ export function BlogSection({
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
   const [togglingId, setTogglingId] = React.useState<string | null>(null);
+  const [publishingId, setPublishingId] = React.useState<string | null>(null);
   const [coverImageFile, setCoverImageFile] = React.useState<File | null>(null);
   const [tagInput, setTagInput] = React.useState("");
+  const [expandedComments, setExpandedComments] = React.useState<string | null>(null);
 
   const form = useForm<BlogFormData>({
     resolver: zodResolver(blogSchema),
@@ -326,6 +461,28 @@ export function BlogSection({
     }
   };
 
+  const handlePublish = async (blog: BlogData) => {
+    setPublishingId(blog._id!);
+    try {
+      const res = await fetch(`/api/blogs/${blog._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ draft: false }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        toast.success("Blog published!");
+        onBlogsChange();
+      } else {
+        toast.error("Failed to publish blog");
+      }
+    } catch {
+      toast.error("Something went wrong");
+    } finally {
+      setPublishingId(null);
+    }
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this blog post?")) return;
     setDeletingId(id);
@@ -399,7 +556,7 @@ export function BlogSection({
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{blog.excerpt}</p>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
                       {blog.category && <span>{blog.category}</span>}
                       {blog.type === "external" && blog.source && (
                         <span className="flex items-center gap-1">
@@ -407,9 +564,56 @@ export function BlogSection({
                         </span>
                       )}
                       <span>{new Date(blog.publishedAt).toLocaleDateString()}</span>
+                      {/* Engagement stats */}
+                      <span className="flex items-center gap-1 text-muted-foreground/70">
+                        <Eye className="h-3 w-3" />{blog.views ?? 0}
+                      </span>
+                      <span className="flex items-center gap-1 text-rose-400/80">
+                        <Heart className="h-3 w-3" />{blog.loves ?? 0}
+                      </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
+                    {/* Quick publish — shown only for internal draft posts */}
+                    {blog.type === "internal" && blog.draft && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 px-2.5 gap-1.5 text-xs text-green-700 border-green-300 hover:bg-green-50 hover:text-green-800 dark:text-green-400 dark:border-green-800 dark:hover:bg-green-950/30"
+                        title="Publish this draft"
+                        onClick={() => handlePublish(blog)}
+                        disabled={publishingId === blog._id}
+                      >
+                        {publishingId === blog._id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Eye className="h-3.5 w-3.5" />
+                        )}
+                        Publish
+                      </Button>
+                    )}
+
+                    {/* Comments toggle */}
+                    {blog.type === "internal" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-2 gap-1 text-xs"
+                        title="Manage comments"
+                        onClick={() =>
+                          setExpandedComments(
+                            expandedComments === blog._id ? null : blog._id!
+                          )
+                        }
+                      >
+                        <MessageCircle className="h-3.5 w-3.5" />
+                        {expandedComments === blog._id ? (
+                          <ChevronUp className="h-3 w-3" />
+                        ) : (
+                          <ChevronDown className="h-3 w-3" />
+                        )}
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -449,6 +653,17 @@ export function BlogSection({
                     </Button>
                   </div>
                 </div>
+
+                {/* Expandable comments panel */}
+                {expandedComments === blog._id && blog.type === "internal" && (
+                  <div className="mt-3 pt-3 border-t border-border">
+                    <p className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1.5">
+                      <MessageCircle className="h-3.5 w-3.5" />
+                      Comment Moderation
+                    </p>
+                    <CommentPanel blogId={blog._id!} />
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}
